@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "521859984470",
+    "firebase_url": "https://lithe-sunset-235110.firebaseio.com",
+    "project_id": "lithe-sunset-235110",
+    "storage_bucket": "lithe-sunset-235110.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:521859984470:android:95fabdbea28597b6bfdff7",
+        "android_client_info": {
+          "package_name": "com.simplecht"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "521859984470-8e29nrpnauq8siji8u7afevq2gurtlit.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGnINVIpe0i3zzMH8wE9e74KOznn-dj9g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "521859984470-8e29nrpnauq8siji8u7afevq2gurtlit.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

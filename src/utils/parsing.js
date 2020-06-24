@@ -2,20 +2,27 @@ import moment from "moment";
 
 const parseTimeStamp = {
     toLocale: stamp => {
-        var date = new Date(stamp);
 
-        return moment(date).calendar(null, {
-            sameDay: 'hh.mm',
-            lastDay: '[Yesterday]',
-            lastWeek: '[Last] dddd',
-            sameElse: ( now ) =>{
-                if( moment( now ).diff( moment() , 'weeks') < 7 ){
-                    return 'ddd';
-                } else if( moment( now ).diff( moment(), 'years') >= 1 ){
-                    return 'dd/mm/yy';
-                } else if( moment( now ).diff( moment(), 'months') >= 1  ){
-                    return 'd mmm'
+        return moment( stamp ).calendar(null, {
+            sameDay: 'hh.mm', // sameday days -0
+            lastDay: '[Yesterday]', // lastday day -1
+            lastWeek: '[Last] dddd', // lastweek day -7
+            sameElse: ( now ) =>{ //sameelse day > 7
+                
+                var diffDay = moment( now ).diff( moment(stamp) , 'days');
+                var diffMonth = moment( now ).diff( moment(stamp) , 'months');
+                var diffYear = moment( now ).diff( moment(stamp) , 'years');
+                
+                if( diffDay > 7 ){
+                    console.log( 'merun');
+                    return 'DD MMM';
                 }
+                else if( diffYear > 1 )
+                {
+                    return 'dd/mm/yy'
+                }
+
+                
                
                 
             }

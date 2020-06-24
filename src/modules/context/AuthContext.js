@@ -10,8 +10,6 @@ const initialState = {
 	userData: null,
 };
 
-
-
 function authReducer(state, action) {
 
 	switch (action.type) {
@@ -41,8 +39,7 @@ function authReducer(state, action) {
 		default:
 			throw new Error('dispatch action not found : ' + action.type);
 
-
-	}
+		}
 
 };
 

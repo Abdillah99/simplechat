@@ -1,6 +1,5 @@
 import ChatScreen from './Chat/ChatScreen';
 import Avatar from './Avatar';
-import Tab from './Tab';
+import { MyTab } from './MyTab';
 
-
-export { ChatScreen, Avatar , Tab};
+export { ChatScreen, Avatar , MyTab};

@@ -20,7 +20,16 @@ function chatListListener(id, callback) {
 
     newRef.on('value', snap => {
 
-        callback(snap.val());
+        var value = snap.val();
+        
+        if( value.type === 'private' )
+        {
+          
+            value.title = value.title[ getMyUid() ];
+
+        }
+
+        callback(value);
 
     });
 
@@ -71,7 +80,6 @@ function sendMessage(chatId, msg) {
 
         if (snap.exists()) {
 
-            console.log('now its exist ');
             var newMessage = storeRef.push();
 
             var message = {
@@ -95,7 +103,7 @@ function getPrivateChat(uid, callback) {
 
     var storeRef = rootRef.child('users/'+ getMyUid() + '/chat_list/' + uid);
 
-    storeRef.once('value', snap => {
+    storeRef.on('value', snap => {
 
         callback(snap.val());
 
@@ -116,6 +124,15 @@ function getMyName() {
     return auth().currentUser.displayName;
 }
 
+function getUserNameById( uid ){
+   rootRef.child('users/' + uid + '/username')
+          .once('value')
+          .then( snap => {
+              return snap.val();
+          })
+
+}
+
 function createGroupChat(title, memberList, callback) {
     var storeRef = rootRef.child('chat_list/');
     var creatorId = getMyUid();
@@ -131,6 +148,7 @@ function createGroupChat(title, memberList, callback) {
         _id: newGroup.key,
         title: title,
         members: memberList,
+        type:'group',
     }
     //insert chat_list child object
     newGroup.set(chatData);
@@ -184,13 +202,14 @@ function sendGroupMessage(groupId, msg) {
 
 }
 
-function sendPrivateMessage(uid, chatId, msg) {
+function sendPrivateMessage(user2data, chatId, msg) {
+    console.log( user2data );
+    const { id: uid , email , username } = user2data;
     //create new message child
     var storeRef = rootRef.child( 'chat_list/' + chatId );
     
     storeRef.once('value', snap =>{
         if (snap.exists()) {
-            console.log( 'now exist' );
             var msgRef = rootRef.child('messages/' + chatId);
             var newMessage = msgRef.push();
             //construct msg object
@@ -213,9 +232,7 @@ function sendPrivateMessage(uid, chatId, msg) {
         }
         else 
         {
-            console.log( 'not exist ' );
-
-            createPrivateChat(uid, msg)
+            createPrivateChat(user2data, msg)
         }
     
     });
@@ -261,15 +278,24 @@ function createChat(title, user2Id, msg) {
 }
 
 
-function createPrivateChat(user2Id, msg) {
+function createPrivateChat(user2data, msg) {
+    const { id : user2Id , username: user2name } = user2data;
+    
     var storeRef = rootRef.child('chat_list/');
     var myId = getMyUid();
 
     var newChat = storeRef.push();
 
+    var title = {};
+
+    title[ myId ] = user2name;
+    title[ user2Id ] = getMyName();
+
     var chatData = {
         _id: newChat.key,
         type: 'private',
+        title,
+        recent_message:{},
     }
 
     newChat.set(chatData);
@@ -298,7 +324,6 @@ function createUser(userId, email, name, profile_image) {
         profile_image: profile_image,
     });
 
-    console.log(storeRef);
 
 }
 

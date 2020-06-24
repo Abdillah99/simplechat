@@ -15,8 +15,8 @@ import { parseTimeStamp } from '../../utils';
 import { signOutService } from '../../services';
 
 export default Home = (props) => {
-    const { userData } = useAuthState();
 
+    const { userData } = useAuthState();
     const [chatList, setChatList] = useState([]);
 
     useEffect( ()=> {
@@ -28,7 +28,7 @@ export default Home = (props) => {
             // need to foreach object
             Object.keys( data ).forEach( item =>{
                 // begin listen each chat_list update
-                chatListListener(data[item], chatData=>{
+                chatListListener( data[item], chatData=> {
                     //update chatList state
                     setChatList( prevstate => {
                         // check if the object exist in prevstate array by object _id  
@@ -42,7 +42,8 @@ export default Home = (props) => {
                         }
                           else
                         {
-                            //dont have same object , add the new data to prevstate
+                            //not have same object , add the new data to prevstate
+                            
                             return [...prevstate, chatData ];
                         }
                     });
@@ -57,9 +58,7 @@ export default Home = (props) => {
     }, []);
 
 
-
     const onLogout = () =>{
-
 
         signOutService( signOut );
 
@@ -71,37 +70,50 @@ export default Home = (props) => {
     
     const renderItem = ({ item }) => {
     
-        var recentMsgNamelabel = item.recent_message.user._id == userData.id ? 'you' : item.recent_message.user.name;
+        var recentMsgNamelabel = item.recent_message ? item.recent_message.user._id == userData.id ? 'you' : item.recent_message.user.name: 'null';
+        var recentMsgText = item.recent_message ? item.recent_message.text : 'null'
+        var recentMsgTime = item.recent_message ?  item.recent_message.createdAt : 'null';
+
         return (
             <TouchableNativeFeedback onPress={ navigating(item._id, item.title )}>
                 
                 <View style={styles.chatCard} >
                     
-                    <View style={{flex:2,justifyContent:'center', alignItems:'center',}}>
+                    <View style={{flex:1,justifyContent:'center', }}>
                         
                         <Avatar 
                             hasBorder={true} />
 
                     </View>
 
-                    <View style={{ flex:6,paddingHorizontal:11, }}>
+                    <View style={{ flex:3.5, justifyContent:'center', }}>
 
-                        <Text style={{fontSize:18, marginTop:4, marginBottom:4, fontFamily:'SFUIText-Regular'}}>{item.title}</Text>
-                        <Text style={{fontSize:12, fontFamily:'SFUIText-Light'}}>{recentMsgNamelabel  + ' : ' + item.recent_message.text}</Text>
+                        <Text style={{fontSize:18,  fontFamily:'SFUIText-Regular', margin:0, padding:0}}>
+                            {item.title}
+                        </Text>
+
+                        <View style={{flexDirection:'row', justifyContent:'center'}}>
+
+                            <Text style={{ maxWidth:'82%', color:'gray', fontSize:12, fontFamily:'SFUIText-Light', textAlign:'left',margin:0, padding:0}} numberOfLines={1}>
+                             
+                                {recentMsgNamelabel  + ' : ' + recentMsgText }
+
+                            </Text>
+
+                            <Text style={{flex:1,fontSize:12,color:'gray', fontFamily:'SFUIText-Light', textAlign:'left', margin:0, padding:0}}>  { parseTimeStamp.toLocale( recentMsgTime ) }</Text>
+
+                        </View>
 
                     </View>
 
-                    <View style={{ flex:2,flexDirection:'column'}}>
+                    <View style={{ flex:0.5,flexDirection:'column',justifyContent:'center', alignItems:'center'}}>
                         
                         <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
                             
-                            <Text style={{ width:20, height:20, color:'white',backgroundColor:'purple', borderRadius:50, textAlign:'center', textAlignVertical:'center', fontSize:12}}>1</Text>
+                            <View style={{ width:10, height:10, backgroundColor:'dodgerblue', borderRadius:50, textAlign:'center', textAlignVertical:'center', fontSize:12}}/>
                         
                         </View>
-
-                        <View style={{flex:1, justifyContent:'flex-end'}}>
-                            <Text style={{fontSize:8}}>{parseTimeStamp.toLocale(item.recent_message.createdAt) }</Text>
-                        </View>
+                
                     </View>
                     
                 </View>
@@ -120,16 +132,16 @@ export default Home = (props) => {
             />
 
             <TouchableNativeFeedback onPress={() => props.navigation.navigate('CreateChat')}>
-                <View style={{height:75, width:75, position:'absolute', backgroundColor:'red', borderRadius:50, bottom:0, right:20}}>
+                <View style={{height:55, width:55, position:'absolute', backgroundColor:'dodgerblue', borderRadius:50, bottom:10, right:20,elevation:3 }}>
 
                 </View>
             </TouchableNativeFeedback>
             
-            <TouchableOpacity onPress={ onLogout } style={{height:20, width:100}}>
+            {/* <TouchableOpacity onPress={ onLogout } style={{height:20, width:100}}>
 
                 <Text>logout</Text>
 
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
         </View>
 
@@ -142,15 +154,13 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: 'white',
+        paddingHorizontal:6
     },
 
     chatCard: {
         alignSelf: 'stretch',
+        flexDirection:'row',
         backgroundColor: 'white',
         height: 80,
-        justifyContent: 'center',
-        flexDirection:'row',
-        paddingVertical:4,
-        paddingHorizontal:8,
     }
 });

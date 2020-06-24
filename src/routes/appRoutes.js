@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Image }from 'react-native';
 
 import { NavigationContainer, DefaultTheme, TabActions } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -6,6 +7,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom-tabs';
 
 import { useAuthContext, useAuthState, get, keys, } from '../modules/';
+
+import { MyTab } from '../components';
 
 import {
     SignIn,
@@ -37,8 +40,14 @@ function AuthStack() {
 function HomeTab() {
 
     return (
-        <Tab.Navigator initialRouteName="Home">
-            <Tab.Screen name="Home" component={Home}/>
+        <Tab.Navigator initialRouteName="Home" tabBar={ props => <MyTab {...props} /> }>
+            <Tab.Screen name="Home" 
+                        component={Home} 
+                        options={{
+                            tabBarIcon:() => {
+                                return <Image source={require('../assets/icon/tab-bar-chat.png')} style={{width:20, height:20}}/>;
+                            } 
+                        }}/>
             <Tab.Screen name="Settings" component={Settings} />
         </Tab.Navigator>
     )

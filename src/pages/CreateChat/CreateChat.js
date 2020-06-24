@@ -23,19 +23,17 @@ function CreateChat(props) {
 
     },[]);
 
-    const createPrivateChat = ( uid , name ) => () =>{
-
-        getPrivateChat( uid , callback =>{
-            console.log( callback );
-            props.navigation.navigate('Chat', {chatId: callback, chatTitle: name, chatType:'private', user2id : uid });        
-        });
+    const createPrivateChat = ( user2data ) => () =>{
+        
+        props.navigation.navigate('Chat', { chatTitle: user2data.username, chatType:'private', user2data : user2data  });        
+        
     }
 
     const _renderItem = ({ item, index }) => {
 
         return (
             
-            <TouchableNativeFeedback onPress={ createPrivateChat( item.id, item.username ) }>
+            <TouchableNativeFeedback onPress={ createPrivateChat( item ) }>
 
                 <View style={{ alignSelf: 'stretch', margin: 12, minHeight: 40, }}>
                     <Text>{item.username}</Text>

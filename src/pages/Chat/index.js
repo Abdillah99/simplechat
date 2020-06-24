@@ -3,7 +3,16 @@ import {
     View,
     Text,
 } from 'react-native'
-import { useAuthState, getMessage, sendMessage, sendGroupMessage, refOff,sendPrivateMessage } from '../../modules';
+
+import {
+    useAuthState,
+    getMessage,
+    sendMessage,
+    sendGroupMessage,
+    refOff,
+    getPrivateChat,
+    sendPrivateMessage
+} from '../../modules';
 
 import {
     GiftedChat,
@@ -18,38 +27,84 @@ export default Chat = props => {
     const { userData } = useAuthState();
     const { id, name } = userData;
 
-    const { chatId, chatTitle , chatType,user2id } = props.route.params;
-
+    const { chatId, chatTitle, chatType, user2data } = props.route.params;
 
     useEffect(() => {
-
         props.navigation.setOptions({ title: chatTitle });
 
-        getMessage(chatId, msg => {
+        if (chatType === 'private') {
+            getPrivateChat(user2data.id, callback => {
+                console.log( 'get private chat run ' );
+                if (callback) {
+                    getMessage(callback, msg => {
 
-            setMessages(prevstate => {
-                let objIndx = prevstate.findIndex((obj => obj._id == msg._id));
-                // javascript find index returning -1 if object not exist and 1 if exist
-                console.log( objIndx );
-                if (objIndx == -1) {
-                    //found same state, update prevstate data  
-                    return GiftedChat.append(prevstate, msg);
+                        setMessages(prevstate => {
+                            let objIndx = prevstate.findIndex((obj => obj._id == msg._id));
+                            // javascript find index returning -1 if object not exist and 1 if exist
+                            if (objIndx == -1) {
+                                //found same state, update prevstate data  
+                                return GiftedChat.append(prevstate, msg);
 
+                            }
+                            else 
+                            {
+                                return [...prevstate];
+                            }
+
+                        });
+
+                    });
                 }
-                else 
+                else
                 {
-                    return [...prevstate];
+                    const msg = {
+                        _id: 1,
+                        text: "you're not chatting with this user yet",
+                        system: true,
+                    }
+
+                    setMessages(prevstate => {
+                        let objIndx = prevstate.findIndex((obj => obj._id == msg._id));
+                        // javascript find index returning -1 if object not exist and 1 if exist
+                        if (objIndx == -1) {
+                            //found same state, update prevstate data  
+                            return GiftedChat.append(prevstate, msg);
+
+                        }
+                        else {
+                            return [...prevstate];
+                        }
+
+                    });
                 }
+
 
             });
 
-        });
+        }
+        else 
+        {
+            getMessage(chatId, msg => {
 
+                setMessages(prevstate => {
+                    let objIndx = prevstate.findIndex((obj => obj._id == msg._id));
+                    // javascript find index returning -1 if object not exist and 1 if exist
+                    if (objIndx == -1) {
+                        //found same state, update prevstate data  
+                        return GiftedChat.append(prevstate, msg);
 
+                    }
+                    else {
+                        return [...prevstate];
+                    }
 
-        return refOff();
+                });
+
+            });
+        }
 
     }, []);
+
 
     const _renderSystemMessage = (props) => {
 
@@ -112,8 +167,8 @@ export default Chat = props => {
             text: text,
         }
 
-        chatType == 'group' ? sendGroupMessage(chatId, newMsg) 
-                            : sendPrivateMessage(user2id, chatId , newMsg );
+        chatType == 'group' ? sendGroupMessage(chatId, newMsg)
+            : sendPrivateMessage(user2data, chatId, newMsg);
 
     }
 

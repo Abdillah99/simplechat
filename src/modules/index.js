@@ -13,7 +13,8 @@ import {
     sendMessage,
     createGroupChat,
     sendGroupMessage,
-    getPrivateChat,
+    getPrivateChatId,
+    createPrivateChat,
     chatListListener,
     sendPrivateMessage,
     refOff
@@ -39,7 +40,8 @@ export {
     sendMessage,
     createGroupChat,
     sendGroupMessage,
-    getPrivateChat,
+    getPrivateChatId,
+    createPrivateChat,
     chatListListener,
     sendPrivateMessage,
     refOff

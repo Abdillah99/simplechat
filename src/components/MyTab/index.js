@@ -8,6 +8,7 @@ function MyTab({ state, descriptors, navigation }) {
         <View style={styles.container}>
             
             {state.routes.map((route, index) => {
+
                 const { options } = descriptors[route.key];
 
                 const label =
@@ -45,13 +46,18 @@ function MyTab({ state, descriptors, navigation }) {
                         testID={options.tabBarTestID}
                         onPress={onPress}
                         onLongPress={onLongPress}
+                        key={route.key}
                     >
                         <View  style={{ flex: 1, justifyContent:'center', alignItems:'center'}}>
+                            
+                            { options.tabBarIcon }
                            
-                            <Text style={{ color: isFocused ? 'dodgerblue' : '#222' }}>
+                            <Text style={{ color: isFocused ? 'dodgerblue' : '#222', fontSize:10 }}>
+                                
                                 {label}
+                                
                             </Text>
-
+                        
                         </View>
                         
                     </TouchableNativeFeedback>
@@ -60,8 +66,6 @@ function MyTab({ state, descriptors, navigation }) {
         </View>
     )
 }
-
-
   
 
 const styles = StyleSheet.create({

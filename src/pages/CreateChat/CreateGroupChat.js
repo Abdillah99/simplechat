@@ -4,10 +4,12 @@ import {
     Text,
     FlatList,
     TouchableNativeFeedback,
-    TextInput
+    TextInput,
+    StyleSheet
 } from 'react-native'
 
-import { getAllUser, createGroupChat } from '../../modules';
+import { getAllUser, createGroupChat } from 'modules';
+import { Avatar } from 'components';
 
 function CreateGroupChat(props) {
 
@@ -58,8 +60,12 @@ function CreateGroupChat(props) {
             
             <TouchableNativeFeedback onPress={()=> onSelect( item.id ) }>
 
-                <View style={{ alignSelf: 'stretch', margin: 12, minHeight: 40, backgroundColor: selected.get(item.id) ? 'red' : 'white' }}>
-                    <Text>{item.username}</Text>
+                <View style={[styles.userContainer,{ backgroundColor: !!selected.get(item.id) ? 'dodgerblue' : 'white' }]}>
+
+                <Avatar hasBorder={true}/> 
+
+                <Text style={styles.userLabel}>{item.username}</Text>
+
                 </View>
 
             </TouchableNativeFeedback>
@@ -67,9 +73,17 @@ function CreateGroupChat(props) {
     }
 
     return (
-        <View>
-            <Text>Create Group Chat </Text>
-            <Text>Select member :</Text>
+        <View style={styles.container}>
+            <View>
+                <TextInput 
+                    style={{alignSelf:'stretch', backgroundColor:'white'}}
+                    placeholder="Group name" 
+                    onChangeText={( text ) => setGroupTitle( text )} />
+
+            </View>
+
+
+            <Text style={styles.headingLabel}>Select member :</Text>
 
             <FlatList
                 data={userList}
@@ -79,18 +93,51 @@ function CreateGroupChat(props) {
             />
 
             <TouchableNativeFeedback onPress={createNewGroup}>
-                <View style={{ alignSelf:'stretch', height:60, backgroundColor:'purple',}}>
-                    <Text> Create Group</Text>
+                <View style={styles.btnCreateGroup}>
+                    <Text style={styles.btnLabel}> Create Group</Text>
                 </View>
             </TouchableNativeFeedback>
 
-            <TextInput 
-                style={{alignSelf:'stretch', backgroundColor:'white'}}
-                placeholder="Group name" 
-                onChangeText={( text ) => setGroupTitle( text )} />
         
         </View>
     )
 }
 
 export default CreateGroupChat;
+
+const styles = StyleSheet.create({
+    container:{
+        flex:1,
+        padding:6,
+        backgroundColor:'white',
+    },
+    headingLabel:{
+        fontSize:16,
+        fontFamily:'SFUIText-SemiBold',
+    },
+    userContainer:{
+        alignSelf: 'stretch', 
+        flexDirection:'row',
+        alignItems:'center', 
+        minHeight: 40, 
+        padding:10,
+    },
+    userLabel:{
+        fontSize:14,
+        fontFamily:'SFUIText-Bold',
+        paddingHorizontal:8,
+    },
+    btnCreateGroup:{
+        alignSelf:'stretch', 
+        height:60, 
+        backgroundColor:'dodgerblue',
+        justifyContent:'center',
+         alignItems:'center',
+         borderRadius:10,
+    },
+    btnLabel:{
+        fontSize:16,
+        color:'white',
+        fontFamily:'SFUIText-Bold',
+    },
+})

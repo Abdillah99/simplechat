@@ -5,7 +5,7 @@ import {
     firebaseRegisterUser,
     firebaseGetCurrentUser,
     createUser
-} from '../../modules';
+} from 'modules';
 
 function signInService( user, signInContext ){
 

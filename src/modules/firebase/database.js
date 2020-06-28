@@ -5,7 +5,6 @@ const rootRef = database().ref();
 
 function getAllChat(callback) {
     var chtList = rootRef.child('users/' + getMyUid() + '/chat_list');
-
     chtList.on('value', snap => {
 
         callback(snap.val());
@@ -15,13 +14,13 @@ function getAllChat(callback) {
 }
 
 function chatListListener(id, callback) {
-
-    var newRef = rootRef.child('chat_list/' + id);
+    console.log( 'chatlistener run ');
+    var newRef = rootRef.child('chat_list/' + id );
 
     newRef.on('value', snap => {
 
         var value = snap.val();
-        
+
         if( value.type === 'private' )
         {
           
@@ -37,7 +36,7 @@ function chatListListener(id, callback) {
 
 
 function refOff() {
-    rootRef.off();
+    rootRef.child('chat_list/').off();
 }
 
 function getMessage(chatId, callback) {
@@ -51,8 +50,12 @@ function getMessage(chatId, callback) {
             storeRef.on('child_added', snap => {
 
                 if (snap.val() != null) {
-
-                    callback(snap.val());
+                    var formatMsg ={
+                        ...snap.val(),
+                        pending:false,
+                        received:true,
+                    }
+                    callback(formatMsg);
 
                 }
 
@@ -99,7 +102,7 @@ function sendMessage(chatId, msg) {
 
 }
 
-function getPrivateChat(uid, callback) {
+function getPrivateChatId(uid, callback) {
 
     var storeRef = rootRef.child('users/'+ getMyUid() + '/chat_list/' + uid);
 
@@ -177,20 +180,15 @@ function createGroupChat(title, memberList, callback) {
 
 }
 
-function sendGroupMessage(groupId, msg) {
-
+function sendGroupMessage(groupId, msg, callback) {
     var storeRef = rootRef.child('messages/' + groupId);
     //create new message child
     var newMessage = storeRef.push();
     //construct msg object
-    var message = {
+
+    const message = {
         _id: newMessage.key,
-        createdAt: getTimeStamp(),
         ...msg,
-        user: {
-            _id: getMyUid(),
-            name: getMyName(),
-        },
         readedBy: [],
     }
 
@@ -198,45 +196,28 @@ function sendGroupMessage(groupId, msg) {
 
     //update chat_list recent_message
     var chtlist = rootRef.child('chat_list/' + groupId + '/recent_message/');
-    chtlist.set(message);
+    chtlist.update(message);
 
+    callback( newMessage.key );
 }
 
-function sendPrivateMessage(user2data, chatId, msg) {
-    console.log( user2data );
-    const { id: uid , email , username } = user2data;
-    //create new message child
-    var storeRef = rootRef.child( 'chat_list/' + chatId );
-    
-    storeRef.once('value', snap =>{
-        if (snap.exists()) {
-            var msgRef = rootRef.child('messages/' + chatId);
-            var newMessage = msgRef.push();
-            //construct msg object
-            var message = {
-                _id: newMessage.key,
-                createdAt: getTimeStamp(),
-                ...msg,
-                user: {
-                    _id: getMyUid(),
-                    name: getMyName(),
-                },
-                readedBy: [],
-            }
+function sendPrivateMessage( chatId, msg) {
 
-            newMessage.set(message);
+    var msgRef = rootRef.child('messages/' + chatId);
+    var newMessage = msgRef.push();
+    //construct msg object
+    var message = {
+        _id: newMessage.key,
+        ...msg,
+        readedBy: [],
+    }
 
-            //update chat_list recent_message
-            var chtlist = rootRef.child('chat_list/' + chatId + '/recent_message/');
-            chtlist.set(message);
-        }
-        else 
-        {
-            createPrivateChat(user2data, msg)
-        }
-    
-    });
-        
+    newMessage.set(message);
+
+    //update chat_list recent_message
+    var chtlist = rootRef.child('chat_list/' + chatId + '/recent_message/');
+    chtlist.set(message);
+           
 }
 
 function createChat(title, user2Id, msg) {
@@ -278,7 +259,7 @@ function createChat(title, user2Id, msg) {
 }
 
 
-function createPrivateChat(user2data, msg) {
+function createPrivateChat( user2data, msg , callback ) {
     const { id : user2Id , username: user2name } = user2data;
     
     var storeRef = rootRef.child('chat_list/');
@@ -308,8 +289,8 @@ function createPrivateChat(user2data, msg) {
     updates['users/' + user2Id + '/chat_list/' + myId] = newChat.key;
 
     rootRef.update(updates);
+    callback( newChat.key );    
 
-    sendPrivateMessage( user2Id , newChat.key, msg );
 }
 
 
@@ -324,13 +305,6 @@ function createUser(userId, email, name, profile_image) {
         profile_image: profile_image,
     });
 
-
-}
-
-function parseUserData(snapshot) {
-    const { username } = snapshot.val();
-
-    return username;
 }
 
 function getAllUser(callback) {
@@ -366,7 +340,8 @@ export {
     sendMessage,
     createGroupChat,
     sendGroupMessage,
-    getPrivateChat,
+    getPrivateChatId ,
+    createPrivateChat,
     sendPrivateMessage,
     chatListListener,
     refOff

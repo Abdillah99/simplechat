@@ -1,14 +1,14 @@
 import * as React from 'react';
 import { Image }from 'react-native';
 
-import { NavigationContainer, DefaultTheme, TabActions } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import { useAuthContext, useAuthState, get, keys, } from '../modules/';
+import { useAuthContext, useAuthState, get, keys, } from 'modules';
 
-import { MyTab } from '../components';
+import { MyTab } from 'components';
 
 import {
     SignIn,
@@ -17,9 +17,11 @@ import {
     Splash,
     Home,
     Settings,
+    Profile,
     CreateChat,
     CreateGroupChat
-} from '../pages';
+} from 'pages';
+
 import auth from '@react-native-firebase/auth';
 
 
@@ -44,9 +46,7 @@ function HomeTab() {
             <Tab.Screen name="Home" 
                         component={Home} 
                         options={{
-                            tabBarIcon:() => {
-                                return <Image source={require('../assets/icon/tab-bar-chat.png')} style={{width:20, height:20}}/>;
-                            } 
+                            tabBarIcon:( <Image source={require('../assets/icon/tab-bar-chat.png')} style={{width:20, height:20, tintColor:'dodgerblue'}}/> )
                         }}/>
             <Tab.Screen name="Settings" component={Settings} />
         </Tab.Navigator>
@@ -57,10 +57,11 @@ function HomeStack() {
 
     return (
         <Stack.Navigator>
-            <Stack.Screen name="HomeTab" component={HomeTab} />
+            <Stack.Screen name="HomeTab" component={HomeTab} options={{headerShown:false}} />
             <Stack.Screen name="Chat" component={Chat}  />
             <Stack.Screen name="CreateChat" component={CreateChat} />
             <Stack.Screen name="CreateGroupChat" component={CreateGroupChat} />
+            <Stack.Screen name="Profile" component={Profile} />
         </Stack.Navigator>
     )
 }

@@ -8,11 +8,11 @@ import {
     sendMessage,
     createGroupChat,
     sendGroupMessage, 
-    getPrivateChat,
+    getPrivateChatId,
+    createPrivateChat,
     chatListListener,
     sendPrivateMessage,
     refOff
-
 } from './database';
 
 export{ 
@@ -28,7 +28,8 @@ export{
     sendMessage,
     createGroupChat,
     sendGroupMessage,
-    getPrivateChat,
+    getPrivateChatId,
+    createPrivateChat,
     chatListListener,
     sendPrivateMessage,
     refOff

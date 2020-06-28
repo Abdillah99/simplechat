@@ -10,6 +10,8 @@ import Settings from './Settings/Settings';
 
 import Splash from './Splash/Splash';
 
+import Profile from './Profile';
+
 import CreateChat from './CreateChat/CreateChat';
 import CreateGroupChat from './CreateChat/CreateGroupChat';
 
@@ -21,6 +23,7 @@ export {
     Chat, 
     Splash,
     Settings,
+    Profile,
     CreateChat,
     CreateGroupChat
 };

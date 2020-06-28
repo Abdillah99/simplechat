@@ -44,6 +44,8 @@ export default SignIn = props => {
 
         <View style={styles.container}>
 
+            <Text style={styles.headerLabel}>Welcome to Firebase SimpleChat!</Text>
+
             <View style={styles.formContainer}>
 
                 <Text style={styles.emailLabel}>Email</Text>
@@ -97,7 +99,12 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 12,
     },
-
+    headerLabel:{
+        fontSize:22,
+        fontFamily:'SFUIText-Light',
+        textAlign:'left',
+        color:'dodgerblue'
+    },  
     formContainer: {
         flex: 1,
         flexDirection: 'column',
@@ -106,10 +113,13 @@ const styles = StyleSheet.create({
     emailLabel: {
         fontSize: 20,
         color: '#000',
+        fontFamily:'SFUIText-Bold'
     },
     emailTextInput: {
         alignSelf: 'stretch',
-        backgroundColor: '#fefe'
+        backgroundColor:'whitesmoke',
+        elevation:2,
+        borderRadius:10,
     },
     buttonContainer: {
         flex: 2,
@@ -118,7 +128,7 @@ const styles = StyleSheet.create({
     },
     buttonSignIn: {
         alignSelf: 'stretch',
-        backgroundColor: 'pink',
+        backgroundColor: 'dodgerblue',
         alignItems: 'center',
         justifyContent: 'center',
         padding: 16,

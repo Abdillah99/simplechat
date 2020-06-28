@@ -8,8 +8,8 @@ import {
     TouchableNativeFeedback
 } from 'react-native';
 
-import { useAuthContext, firebaseGetCurrentUser } from '../../modules';
-import { registerUserService, currentUserOnService } from '../../services';
+import { useAuthContext, firebaseGetCurrentUser } from 'modules';
+import { registerUserService, currentUserOnService } from 'services';
 
 export default SignUp = props =>{
 

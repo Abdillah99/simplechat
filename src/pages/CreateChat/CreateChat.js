@@ -4,10 +4,12 @@ import {
     Text,
     FlatList,
     TouchableNativeFeedback,
-    TextInput
+    TextInput,
+    StyleSheet
 } from 'react-native'
 
-import { getAllUser, getPrivateChat } from '../../modules';
+import { getAllUser, getPrivateChatId } from 'modules';
+import { Avatar } from 'components';
 
 function CreateChat(props) {
 
@@ -24,8 +26,11 @@ function CreateChat(props) {
     },[]);
 
     const createPrivateChat = ( user2data ) => () =>{
+        getPrivateChatId( user2data.id, chatId =>{
+            
+            props.navigation.navigate('Chat', { chatTitle: user2data.username, chatType:'private', user2data : user2data, chatId:chatId  });        
         
-        props.navigation.navigate('Chat', { chatTitle: user2data.username, chatType:'private', user2data : user2data  });        
+        });
         
     }
 
@@ -35,8 +40,12 @@ function CreateChat(props) {
             
             <TouchableNativeFeedback onPress={ createPrivateChat( item ) }>
 
-                <View style={{ alignSelf: 'stretch', margin: 12, minHeight: 40, }}>
-                    <Text>{item.username}</Text>
+                <View style={styles.userContainer}>
+
+                    <Avatar hasBorder={true}/> 
+
+                    <Text style={styles.userLabel}>{item.username}</Text>
+
                 </View>
 
             </TouchableNativeFeedback>
@@ -44,7 +53,7 @@ function CreateChat(props) {
     }
 
     return (
-        <View>
+        <View style={styles.container}>
 
             <FlatList
                 data={userList}
@@ -53,9 +62,13 @@ function CreateChat(props) {
             />
 
             <TouchableNativeFeedback onPress={() => props.navigation.navigate('CreateGroupChat')}>
-                <View style={{ alignSelf:'stretch', height:60, backgroundColor:'purple',}}>
-                    <Text> Create Group</Text>
+                
+                <View style={styles.btnCreateGroup}>
+                    
+                    <Text style={styles.btnLabel}> Create Group Chat </Text>
+             
                 </View>
+
             </TouchableNativeFeedback>
         
         </View>
@@ -63,3 +76,36 @@ function CreateChat(props) {
 }
 
 export default CreateChat;
+
+const styles = StyleSheet.create({
+    container:{
+        flex:1,
+        padding:6,
+    },
+    btnCreateGroup:{
+        alignSelf:'stretch', 
+        height:60, 
+        backgroundColor:'dodgerblue',
+        justifyContent:'center',
+         alignItems:'center',
+         borderRadius:10,
+    },
+    btnLabel:{
+        fontSize:16,
+        color:'white',
+        fontFamily:'SFUIText-Bold',
+    },
+    userContainer:{
+        alignSelf: 'stretch', 
+        flexDirection:'row',
+        alignItems:'center', 
+        minHeight: 40, 
+        padding:10,
+        backgroundColor:'white'
+    },
+    userLabel:{
+        fontSize:14,
+        fontFamily:'SFUIText-Bold',
+        paddingHorizontal:8,
+    }
+})

@@ -9,20 +9,22 @@ import {
     Image
 } from 'react-native';
 
+import styles from './style';
+
 import { Avatar } from 'components';
 
 import { useAuthState, getAllChat, chatListListener, refOff } from 'modules';
 import { parseTimeStamp } from 'utils';
 
-export default Home = (props) => {
-
+export default ChatList = ( props ) => {
+    const { onChatPress , } = props;
     const { userData } = useAuthState();
     const [chatList, setChatList] = useState([]);
     const [ initialFetch, setInitialFetch ] = useState([false]);
 
     useEffect(() => {
         //get all user chat id
-        getAllChat(data => {
+        getAllChat( data => {
             // listening chat_list update 
             ///users/chat_list child are returning object not an array
             // need to foreach object
@@ -76,7 +78,7 @@ export default Home = (props) => {
         var recentMsgTime = item.recent_message ? parseTimeStamp.toLocale(item.recent_message.createdAt) : 'null';
 
           return (
-            <TouchableNativeFeedback onPress={navigating(item._id, item.title)}>
+            <TouchableNativeFeedback onPress={ onChatPress( item ) }>
 
                 <View style={styles.chatCard} >
 
@@ -131,98 +133,8 @@ export default Home = (props) => {
                 contentContainerStyle={{paddingHorizontal:10}}
             />
 
-            <TouchableNativeFeedback onPress={() => props.navigation.navigate('CreateChat')} style={{borderRadius:50}}>
-                
-                <View style={ styles.hoverButtonContainer }>
-
-                    <Image source={require('../../assets/icon/plus.png')} style={{width:20, height:20, tintColor:'white' }}/>
-               
-                </View>
-
-            </TouchableNativeFeedback>
-
         </View>
 
     )
 
 }
-
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: 'white',
-    },
-
-    chatCard: {
-        alignSelf: 'stretch',
-        flexDirection: 'row',
-        backgroundColor: 'white',
-        height: 80,
-    },
-
-    leftContainer: {
-        flex: 1, 
-        justifyContent: 'center',
-    },
-
-    centerContainer: {
-        flex: 3.5, 
-        justifyContent: 'center',
-    },
-    labelTitle: {
-        fontSize: 18, 
-        fontFamily: 'SFUIText-Regular',
-        margin: 0, 
-        padding: 0,
-    },
-    msgLabelContainer: {
-        flexDirection: 'row', 
-        justifyContent: 'center',
-    },
-    msgLabel: {
-        maxWidth: '75%', 
-        color: 'gray', 
-        fontSize: 12, 
-        fontFamily: 'SFUIText-Light', 
-        textAlign: 'left', 
-        margin: 0, 
-        padding: 0,
-    },
-    msgTimeLabel: {
-        flex: 1, 
-        fontSize: 12, 
-        color: 'gray', 
-        fontFamily: 'SFUIText-Light', 
-        textAlign: 'left', 
-        margin: 0, 
-        padding: 0,
-    },
-    rightContainer: {
-        flex: 0.5, 
-        flexDirection: 'column', 
-        justifyContent: 'center', 
-        alignItems: 'center',
-    },
-    notificationCircle: {
-        width: 10, 
-        height: 10, 
-        backgroundColor: 'dodgerblue', 
-        borderRadius: 50, 
-        textAlign: 'center', 
-        textAlignVertical: 'center', 
-        fontSize: 12,
-    },
-    hoverButtonContainer:{
-        height: 55, 
-        width: 55, 
-        justifyContent:'center',
-        alignItems:'center',
-        position: 'absolute', 
-        backgroundColor: 'dodgerblue', 
-        borderRadius: 50, 
-        bottom: 10, 
-        right: 20, 
-        elevation: 3
-    }
-});

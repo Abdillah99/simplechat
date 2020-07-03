@@ -1,8 +1,9 @@
-import {AsyncStorage} from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 
 const keys = {
     'USER_TOKEN'    : 'token',
     'USERDATA'      : 'uData',
+    'CHATS'         : 'chats',
 };
   
 /// GET Item from asyncStorage return parsed JSON object 

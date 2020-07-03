@@ -19,7 +19,8 @@ import {
     Settings,
     Profile,
     CreateChat,
-    CreateGroupChat
+    CreateGroupChat,
+    Loading,
 } from 'pages';
 
 import auth from '@react-native-firebase/auth';
@@ -57,6 +58,7 @@ function HomeStack() {
 
     return (
         <Stack.Navigator>
+            <Stack.Screen name="Loading" component={Loading} options={{headerShown:false}} />
             <Stack.Screen name="HomeTab" component={HomeTab} options={{headerShown:false}} />
             <Stack.Screen name="Chat" component={Chat}  />
             <Stack.Screen name="CreateChat" component={CreateChat} />
@@ -112,11 +114,11 @@ export default function MainStack() {
         <NavigationContainer >
 
             <Stack.Navigator>
-                {isLoading ? (
+                { isLoading ? (
 
                     <Stack.Screen
                         name="Splash"
-                        component={Splash}
+                        component={ Splash }
                         options={{ headerShown: false }} />
 
                 ) : userToken == null ? (

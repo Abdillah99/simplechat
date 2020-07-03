@@ -4,7 +4,7 @@ import {
     createChat, 
     getAllUser,
     getAllChat, 
-    getMessage,
+    messageListener,
     sendMessage,
     createGroupChat,
     sendGroupMessage, 
@@ -12,6 +12,7 @@ import {
     createPrivateChat,
     chatListListener,
     sendPrivateMessage,
+    initializeChatData,
     refOff
 } from './database';
 
@@ -24,7 +25,7 @@ export{
     createUser,
     getAllUser,
     getAllChat,
-    getMessage,
+    messageListener,
     sendMessage,
     createGroupChat,
     sendGroupMessage,
@@ -32,5 +33,6 @@ export{
     createPrivateChat,
     chatListListener,
     sendPrivateMessage,
+    initializeChatData,
     refOff
 }

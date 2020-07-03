@@ -12,6 +12,7 @@ import Splash from './Splash/Splash';
 
 import Profile from './Profile';
 
+import Loading from './Loading';
 import CreateChat from './CreateChat/CreateChat';
 import CreateGroupChat from './CreateChat/CreateGroupChat';
 
@@ -22,6 +23,7 @@ export {
     Home, 
     Chat, 
     Splash,
+    Loading,
     Settings,
     Profile,
     CreateChat,

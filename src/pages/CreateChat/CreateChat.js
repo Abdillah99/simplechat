@@ -27,7 +27,7 @@ function CreateChat(props) {
 
     const createPrivateChat = ( user2data ) => () =>{
         getPrivateChatId( user2data.id, chatId =>{
-            
+            console.log(chatId);
             props.navigation.navigate('Chat', { chatTitle: user2data.username, chatType:'private', user2data : user2data, chatId:chatId  });        
         
         });

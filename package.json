@@ -11,6 +11,7 @@
     "adb-connect": "adb -s 4200c97890094300 reverse tcp:8081 tcp:8081"
   },
   "dependencies": {
+    "@react-native-community/async-storage": "^1.11.0",
     "@react-native-community/masked-view": "^0.1.10",
     "@react-native-firebase/app": "^7.0.1",
     "@react-native-firebase/auth": "^7.0.1",
@@ -29,8 +30,8 @@
     "react-native-screens": "^2.7.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.6.2",
-    "@babel/runtime": "^7.6.2",
+    "@babel/core": "^7.9.0",
+    "@babel/runtime": "^7.9.2",
     "@react-native-community/eslint-config": "^0.0.5",
     "@types/react-native": "^0.62.7",
     "babel-jest": "^24.9.0",

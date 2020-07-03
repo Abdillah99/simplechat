@@ -27,6 +27,8 @@ export default function Settings( props ){
         props.navigation.navigate( 'Profile' );
     }
 
+    const nameLabel = userData? userData.name : 'null';
+
     return(
         <View style={styles.container}>
             
@@ -34,7 +36,7 @@ export default function Settings( props ){
 
                 <Avatar hasBorder={true} />
 
-                <Text style={{fontFamily:'SFUIText-SemiBold'}}>{userData.name}</Text>
+                <Text style={{fontFamily:'SFUIText-SemiBold'}}>{nameLabel}</Text>
                 
                 <TouchableOpacity onPress={navigating}>
 

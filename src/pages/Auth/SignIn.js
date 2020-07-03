@@ -118,8 +118,7 @@ const styles = StyleSheet.create({
     emailTextInput: {
         alignSelf: 'stretch',
         backgroundColor:'whitesmoke',
-        elevation:2,
-        borderRadius:10,
+        borderWidth:0.4
     },
     buttonContainer: {
         flex: 2,

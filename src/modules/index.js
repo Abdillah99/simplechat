@@ -1,5 +1,6 @@
 import { get, keys, clear, set } from './asyncstorage/';
 import { AuthProvider, useAuthContext, useAuthState } from './context/AuthContext';
+import { SettingsProvider, useSettingsAction, useSettingsState } from './context/SettingsContext';
 import { 
     firebaseSignInEmailPass, 
     firebaseSignOut, 
@@ -9,7 +10,7 @@ import {
     createUser, 
     getAllUser, 
     getAllChat,
-    getMessage,
+    messageListener,
     sendMessage,
     createGroupChat,
     sendGroupMessage,
@@ -17,6 +18,7 @@ import {
     createPrivateChat,
     chatListListener,
     sendPrivateMessage,
+    initializeChatData,
     refOff
 } from './firebase';
 
@@ -24,6 +26,9 @@ export {
     AuthProvider,
     useAuthContext,
     useAuthState,
+
+    SettingsProvider, useSettingsAction, useSettingsState,
+
     get,
     set,
     keys,
@@ -36,7 +41,7 @@ export {
     getAllUser,
     createChat,
     getAllChat,
-    getMessage,
+    messageListener,
     sendMessage,
     createGroupChat,
     sendGroupMessage,
@@ -44,5 +49,6 @@ export {
     createPrivateChat,
     chatListListener,
     sendPrivateMessage,
+    initializeChatData,
     refOff
 };

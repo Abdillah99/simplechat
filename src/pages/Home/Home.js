@@ -11,48 +11,44 @@ import {
 
 import { Avatar } from 'components';
 
-import { useAuthState, getAllChat, chatListListener, refOff } from 'modules';
+import { useAuthState, getAllChat, chatListListener, refOff, useSettingsState } from 'modules';
 import { parseTimeStamp } from 'utils';
-
+import { initChatList, subscribeChatList } from 'services';
 export default Home = (props) => {
 
     const { userData } = useAuthState();
     const [chatList, setChatList] = useState([]);
     const [ initialFetch, setInitialFetch ] = useState([false]);
-
+    const { chatData  } = useSettingsState();
+    
     useEffect(() => {
         //get all user chat id
-        getAllChat(data => {
-            // listening chat_list update 
-            ///users/chat_list child are returning object not an array
-            // need to foreach object
-            Object.keys(data).forEach(item => {
-                // begin listen each chat_list update
-                chatListListener(data[item], chatData => {
-                    //update chatList state
-                    setChatList(prevstate => {
-                        // check if the object exist in prevstate array by object _id  
-                        let objIndx = prevstate.findIndex((obj => obj._id == chatData._id));
-                        // javascript find index returning -1 if object not exist
-                        if (objIndx != -1) {
-                            //found same state, update prevstate data  
-                            prevstate[objIndx] = chatData;
+        setChatList( chatData.chats );
+        // initChatList( data =>{
 
-                            return [...prevstate];
-                        }
-                        else 
-                        {
-                            //not same object , add the new data to prevstate
+        //     data.forEach( item =>{ 
+                
+        //         subscribeChat( item.val(), chatData =>{
+                    
+        //             setChatList(prevstate => {
+        //                 // check if the object exist in prevstate array by object _id  
+        //                 let objIndx = prevstate.findIndex((obj => obj._id == chatData._id));
+        //                 // javascript find index returning -1 if object not exist
+        //                 if (objIndx != -1) {
+        //                     //found same state, update prevstate data  
+        //                     prevstate[objIndx] = chatData;
 
-                            return [...prevstate, chatData];
-                        }
-                    });
-
-                });
-
-            });
-
-        });
+        //                     return [...prevstate];
+        //                 }
+        //                 else 
+        //                 {
+        //                     return [...prevstate, chatData];
+        //                 }
+        //             });
+                
+        //         })
+        //     })
+        // }); 
 
         return refOff();
 
@@ -66,17 +62,31 @@ export default Home = (props) => {
         
     }
 
-    const navigating = (id, title) => () => {
-        props.navigation.navigate('Chat', { chatId: id, chatTitle: title, chatType: 'group' });
+    const navigating = (id, title, index ) => () => {
+        props.navigation.navigate('Chat', { chatId: id, chatTitle: title,});
     }
 
-    const renderItem = ({ item }) => {
-        var recentMsgNamelabel = item.recent_message ? item.recent_message.user._id == userData.id ? 'you' : item.recent_message.user.name : 'null';
+    const markReadedMsg = () =>{
+
+    }
+
+    const renderItem = ({item , index}) => {
+        var usrDat = userData ? userData : {};
+        var recentMsgNamelabel = item.recent_message ? 
+                                item.recent_message.system ? 
+                                '' : 
+                                item.recent_message.user ? 
+                                item.recent_message.user._id == usrDat._id ? 
+                                'you :':
+                                item.recent_message.user.name + ' :' : 
+                                '':
+                                '';
         var recentMsgText = item.recent_message ? item.recent_message.text : 'null'
         var recentMsgTime = item.recent_message ? parseTimeStamp.toLocale(item.recent_message.createdAt) : 'null';
 
-          return (
-            <TouchableNativeFeedback onPress={navigating(item._id, item.title)}>
+        return (
+
+            <TouchableNativeFeedback onPress={navigating(item._id, item.title, index )}>
 
                 <View style={styles.chatCard} >
 
@@ -98,7 +108,7 @@ export default Home = (props) => {
 
                             <Text style={styles.msgLabel} numberOfLines={1}>
 
-                                {recentMsgNamelabel + ' : ' + recentMsgText}
+                                {recentMsgNamelabel + ' ' + recentMsgText}
 
                             </Text>
 
@@ -124,9 +134,8 @@ export default Home = (props) => {
         <View style={styles.container}>
 
             <FlatList
-                data={ clientData() }
-                extraData={ chatList }
-                keyExtractor={ (item, index) => item._id }
+                data={ chatList }
+                keyExtractor={ (item,index) => item._id }
                 renderItem={ renderItem }
                 contentContainerStyle={{paddingHorizontal:10}}
             />

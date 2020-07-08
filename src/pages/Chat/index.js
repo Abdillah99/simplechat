@@ -2,16 +2,17 @@ import React, { useState, useEffect } from 'react'
 import {
     View,
     Text,
+    InteractionManager,
 } from 'react-native'
 
 import {
     useAuthState,
-    getMessage,
     sendMessage,
     sendGroupMessage,
     refOff,
     createPrivateChat,
-    useSettingsState,messageListener
+    useChatState,
+    messageListener
 } from 'modules';
 
 import { subscribeChat } from 'services';
@@ -23,24 +24,31 @@ import {
 } from 'react-native-gifted-chat';
 
 export default Chat = props => {
-    const { chatData } = useSettingsState();
+    const { messages:msgContext } = useChatState();
     const { chatId, chatTitle, user2data } = props.route.params;
 
-    const [messages, setMessages] = useState();
+    const [messages, setMessages] = useState([]);
     const { userData } = useAuthState();
     const { id, name } = userData;
 
 
     useEffect(() => {
         props.navigation.setOptions({ title: chatTitle });
-
-        var idMsg = chatData.messages.findIndex( item => Object.keys(item) == chatId );
-        var msgObj = Object.values( chatData.messages[idMsg] )[0];
-        var msgData = Object.values( msgObj );
-        setMessages( msgData );
+    
         if( chatId ){
+            var idMsg = msgContext.findIndex( item => Object.keys(item) == chatId );
+           
+            if( idMsg != -1 )
+            {
+                var msgObj = msgContext ? Object.values( msgContext[idMsg] )[0]: [];
+                var msgData = Object.values( msgObj );
+               
+                setMessages( msgData );
+            }
+          
+
             subscribeChat( chatId ,  msg =>{
-                console.log( 'got new msg ' + JSON.stringify(msg) );
+
                 setMessages(prevstate => {
                 let objIndx = prevstate.findIndex((obj => obj._id == msg._id));
                 
@@ -50,7 +58,7 @@ export default Chat = props => {
 
                 }
                 else {
-                    //replace prevstate data with new data
+                    //replace prevstate data with new updated data
                     prevstate[objIndx] = msg;
 
                     return [...prevstate];

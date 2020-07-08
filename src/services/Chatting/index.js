@@ -1,4 +1,4 @@
-import { getAllChat, chatListListener, messageListener, initializeChatData } from 'modules';
+import { getAllChat, chatListListener, messageListener, initializeChatData, myChatListListener } from 'modules';
 import auth from '@react-native-firebase/auth';
 
 const getMyUid = ()=> {
@@ -16,6 +16,8 @@ const initializingFirst = ( result ) =>{
             var itemVal = item.val();
             //convert chat title 
             if( itemVal.type == 'private') itemVal.title = itemVal.title[ getMyUid() ];
+            if( itemVal.recent_message.user != undefined && itemVal.recent_message.user._id == getMyUid()) itemVal.recent_message.user.name = 'You';
+
             chatList.push( itemVal );
         });
 
@@ -86,15 +88,35 @@ const initChatList = ( callback ) => {
 
 }
 
-const subscribeChatList = ( chatId, callback ) =>{
+const subscribeChatList = ( id  , callback ) =>{
+    
+        chatListListener( id, onSuccess, onFailed );
 
-    chatListListener( chatId, onSuccess, onFailed )
+        function onSuccess( res ){
+            var value = res.val();
+            
+            if( value.type == 'private' ) value.title = value.title[ getMyUid() ];
+            if( value.recent_message.user._id == getMyUid()) value.recent_message.user.name = 'You';
+
+            callback( value );
+        
+        }
+    
+        function onFailed( err ){
+            console.log( 'Error subscribeChat : ' + err );
+        }
+ 
+}
+
+const subScribeMyChatList = ( callback ) =>{
+    
+    myChatListListener( onSuccess, onFailed );
 
     function onSuccess( res ){
         var value = res.val();
         
         if( value.type == 'private' ) value.title = value.title[ getMyUid() ];
-        
+
         callback( value );
     
     }
@@ -102,7 +124,6 @@ const subscribeChatList = ( chatId, callback ) =>{
     function onFailed( err ){
         console.log( 'Error subscribeChat : ' + err );
     }
-
 }
 
 const subscribeChat =( chatId , callback )=>{
@@ -144,4 +165,9 @@ const sendMessage = ( chatId, msg ) =>{
 }
 
 
-export { initChatList, subscribeChatList,subscribeChat,initializingFirst };
+export { 
+    initChatList, 
+    subScribeMyChatList,
+    subscribeChatList,
+    subscribeChat,
+    initializingFirst };

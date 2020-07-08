@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { MainStack } from 'routes';
-import { AuthProvider, SettingsProvider } from 'modules';
+import { AuthProvider, SettingsProvider, ChatProvider } from 'modules';
 
 
 function App() {
@@ -11,8 +11,12 @@ function App() {
       
       <SettingsProvider>
 
-        <MainStack />
+        <ChatProvider>
 
+          <MainStack />
+
+        </ChatProvider>
+      
       </SettingsProvider>
 
     </AuthProvider>

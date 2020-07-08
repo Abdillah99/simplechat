@@ -13,6 +13,7 @@ import {
     chatListListener,
     sendPrivateMessage,
     initializeChatData,
+    myChatListListener,
     refOff
 } from './database';
 
@@ -34,5 +35,6 @@ export{
     chatListListener,
     sendPrivateMessage,
     initializeChatData,
+    myChatListListener,
     refOff
 }

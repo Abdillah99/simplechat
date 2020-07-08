@@ -10,22 +10,12 @@ const initialState = {
 }; 
 
 const key ={
-    INIT_FETCH      : 'INITIAL_FETCH',
     TOGGLE_DARKMODE : 'TOGGLE_DARKMODE', 
-    RESTORE_DATA    : 'RESTORE_DATA',
 }
 
 function settingsReducer( state, action ) {
 
 	switch (action.type) {
-
-        case key.INIT_FETCH :
-            return{
-                ...state,
-                isLoading:false,
-                firstTime:false,
-                chatData: action.data,
-            };
         
         case key.TOGGLE_DARKMODE : 
             return{
@@ -33,13 +23,6 @@ function settingsReducer( state, action ) {
                 isLoading:false,
                 darkMode: !state.darkMode,
             };
-
-        case key.RESTORE_DATA :
-            return{
-                ...state,
-                isLoading:false,
-                chatData: action.data,
-            }
 	
 		default:
 			throw new Error('dispatch action not found : ' + action.type);
@@ -56,14 +39,8 @@ function SettingsProvider(props) {
 
 	const settingAction = useMemo( 
         () => ({
-            initFetch: async data =>{
-
-                dispatch({ type: key.INIT_FETCH , data: data });
-            },
 
             toggleDarkMode: () => dispatch({ type: key.TOGGLE_DARKMODE }),
-            
-            restoreData: data => dispatch({ type: key.RESTORE_DATA, data:data }),
 
 		}),
 	)

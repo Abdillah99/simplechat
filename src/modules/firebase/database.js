@@ -49,10 +49,6 @@ function initializeChatData(onSuccessChat, onSuccessMsg, onFailed) {
 
 }
 
-
-function initializeChatList(onSuccess, onFailed) {
-
-}
 function getAllChat(onSucces, onFailed) {
 
     rootRef.child('users/' + getMyUid() + '/chat_list')
@@ -64,13 +60,32 @@ function getAllChat(onSucces, onFailed) {
 
 }
 
-function chatListListener(chatId, onSucces, onFailed) {
-    rootRef.child('chat_list/' + chatId)
-        .on('child_added', snap => {
-            onSucces(snap);
-        }, err => {
-            onFailed(err);
-        })
+function myChatListListener( onSuccess, onFailed ){
+
+    rootRef.child('users/' + getMyUid() + '/chat_list')
+            .on('child_added', newId => {
+                rootRef.child('chat_list')
+                        .orderByKey()
+                        .equalTo(newId.val())
+                        .on( 'child_added' , snap =>{
+                            onSuccess(snap);
+                        });
+                
+            }, err => {
+                onFailed(err);
+            })
+}
+
+function chatListListener( id, onSucces, onFailed) {
+    rootRef.child('chat_list')
+            .orderByKey()
+            .limitToLast(1)
+            .equalTo( id )
+            .on('child_changed', snap =>{
+                onSucces( snap );
+            }, err =>{
+                onFailed( err );
+            })
 
 }
 
@@ -153,14 +168,6 @@ function getMyName() {
     return auth().currentUser.displayName;
 }
 
-function getUserNameById(uid) {
-    rootRef.child('users/' + uid + '/username')
-        .once('value')
-        .then(snap => {
-            return snap.val();
-        })
-
-}
 
 function createGroupChat(title, memberList, callback) {
     var storeRef = rootRef.child('chat_list/'),
@@ -287,7 +294,6 @@ function createChat(title, user2Id, msg) {
 
 }
 
-
 function createPrivateChat(user2data, callback) {
     const { id: user2Id, username: user2name } = user2data;
 
@@ -322,7 +328,6 @@ function createPrivateChat(user2data, callback) {
     callback(newChat.key);
 
 }
-
 
 function createUser(userId, email, name, profile_image) {
 
@@ -373,5 +378,6 @@ export {
     sendPrivateMessage,
     chatListListener,
     initializeChatData,
+    myChatListListener,
     refOff
 }

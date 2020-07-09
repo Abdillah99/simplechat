@@ -6,7 +6,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import { useAuthContext, useAuthState, get, keys, } from 'modules';
+import { useAuthContext, useAuthState, get, keys, ChatProvider } from 'modules';
 
 import { MyTab } from 'components';
 

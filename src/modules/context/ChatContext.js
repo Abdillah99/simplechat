@@ -8,6 +8,8 @@ const initialState = {
     isLoading: true,
     chats:[],
     messages:[],
+    
+    initialized:false,
 }; 
 
 const key ={
@@ -28,13 +30,26 @@ function chatReducer( state, action ) {
                 isLoading:false,
                 chats: action.data.chats,
                 messages: action.data.messages,
+                initialized:true,
             };
         
-        case key.UPDATE_CHAT_LIST : 
-            return{
-                ...state,
-                chats: action.data,
-            };
+        case key.UPDATE_CHAT_LIST :
+            
+            let objIndx = state.chats.findIndex(obj => obj._id == action.data._id);
+                    
+            if (objIndx != -1) {
+                console.log('same obj')
+                state.chats[objIndx].recent_message = action.data.recent_message;
+                return {...state};
+            }
+            else 
+            {
+                console.log('not same obj ');
+                state.chats.push( action.data );
+
+                return {...state};
+            }
+     
 
         case key.UPDATE_MESSAGE :
             return{
@@ -53,25 +68,30 @@ function chatReducer( state, action ) {
 
 function ChatProvider(props) {
 
-	const [state, dispatch] = useReducer(chatReducer, initialState);
+    const [state, dispatch] = useReducer(chatReducer, initialState);
+    
     useEffect(() =>{
 
-        subScribeMyChatList( newChat=>{
+        if( state.initialized )
+        {
+            state.chats.forEach( element => {
+                console.log( 'chats update listener ' , element.title);
+                subscribeChatList( element._id , chatUpdate =>{
+                    console.log( 'subscribe run ' , chatUpdate);
+                    chatAction.updateChatContext(  chatUpdate );
+                })
+            });
+            
+            subScribeMyChatList( newChat=>{
+                console.log( 'got new chat list' , newChat );
+                chatAction.updateChatContext(  newChat );
+            });
 
-            let objIndx = state.chats.findIndex(obj => obj._id == newChat._id);
-            // javascript find index returning -1 if object not exist
-            if (objIndx != -1) {
+           
 
-            }
-            else{
-                state.chats.push( newChat );
-                       
-               chatAction.updateChatContext(  state.chats );
-            }
+        }
 
-        })
-
-    },[]);
+    },[ state.initialized, state.chats ]);
 
 	const chatAction = useMemo( 
         () => ({

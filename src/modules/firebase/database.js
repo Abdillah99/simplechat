@@ -62,7 +62,9 @@ function getAllChat(onSucces, onFailed) {
 
 function myChatListListener( onSuccess, onFailed ){
 
-    rootRef.child('users/' + getMyUid() + '/chat_list')
+    rootRef.child('users/' + getMyUid() + '/chat_list/')
+            .orderByKey()
+            .limitToLast(1)
             .on('child_added', newId => {
                 rootRef.child('chat_list')
                         .orderByKey()
@@ -79,7 +81,6 @@ function myChatListListener( onSuccess, onFailed ){
 function chatListListener( id, onSucces, onFailed) {
     rootRef.child('chat_list')
             .orderByKey()
-            .limitToLast(1)
             .equalTo( id )
             .on('child_changed', snap =>{
                 onSucces( snap );
@@ -148,7 +149,7 @@ function sendMessage(chatId, msg) {
 
 function getPrivateChatId(uid, callback) {
 
-    rootRef.child('users/' + getMyUid() + '/chat_list/' + uid)
+    rootRef.child('users/' + getMyUid() + '/private_chat/' + uid)
         .on('value', snap => {
             callback(snap.val());
         });
@@ -161,7 +162,7 @@ function getTimeStamp() {
 }
 
 function getMyUid() {
-    return auth().currentUser.uid;
+    return auth().currentUser.uid != null ?auth().currentUser.uid :'' ;
 }
 
 function getMyName() {
@@ -316,12 +317,22 @@ function createPrivateChat(user2data, callback) {
 
     newChat.set(chatData);
 
+    var updateChtList = {};
+
+    var myChatId = rootRef.child('users/' + myId +'/chat_list').push().key;
+    var user2ChatId = rootRef.child('users/' + user2Id +'/chat_list').push().key;
+   
+    updateChtList['users/'+myId+'/chat_list/' + myChatId]       = newChat.key;
+    updateChtList['users/'+user2Id+'/chat_list/' + user2ChatId] = newChat.key;
+    
+    rootRef.update( updateChtList );
+
     //multiple update user 1 & 2 chat list data 
     var updates = {};
 
-    //update user 1 & 2 chat_list by inserting id of chat_list
-    updates['users/' + myId + '/chat_list/' + user2Id] = newChat.key;
-    updates['users/' + user2Id + '/chat_list/' + myId] = newChat.key;
+    //update user 1 & 2 private_chat by inserting id  
+    updates['users/' + myId + '/private_chat/' + user2Id] = newChat.key;
+    updates['users/' + user2Id + '/private_chat/' + myId] = newChat.key;
 
     rootRef.update(updates);
 

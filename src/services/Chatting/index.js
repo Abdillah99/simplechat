@@ -2,7 +2,7 @@ import { getAllChat, chatListListener, messageListener, initializeChatData, myCh
 import auth from '@react-native-firebase/auth';
 
 const getMyUid = ()=> {
-    return auth().currentUser.uid;
+    return auth().currentUser.uid != null ?auth().currentUser.uid : '' ;
 }
 const initializingFirst = ( result ) =>{
     

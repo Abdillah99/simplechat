@@ -10,6 +10,7 @@ import {
 
 import { getAllUser, createGroupChat } from 'modules';
 import { Avatar } from 'components';
+import { StackActions } from '@react-navigation/native';
 
 function CreateGroupChat(props) {
 
@@ -29,18 +30,22 @@ function CreateGroupChat(props) {
 
 
     const createNewGroup = ( )  => {
+        requestAnimationFrame(() =>{
 
-        var temp = selected;
-        
-        let selectedId = [...temp.entries()]
+            var temp = selected;
+            
+            let selectedId = [...temp.entries()]
             .filter( ( { 1:v } ) => v === true)
             .map( ( [ k ] ) => k);
-
-        createGroupChat( groupTitle, selectedId, callback =>{
-            props.navigation.navigate('Chat', {chatId: callback, chatTitle: groupTitle, chatType:'group' });
             
-        });
-
+            createGroupChat( groupTitle, selectedId, callback =>{
+                // props.navigation.navigate('Chat', {chatId: callback, chatTitle: groupTitle,  });
+                props.navigation.dispatch(
+                    StackActions.replace('Chat',{chatId: callback, chatTitle: groupTitle, })
+                    );
+                });
+                
+        })
     }
 
     const onSelect = useCallback( 

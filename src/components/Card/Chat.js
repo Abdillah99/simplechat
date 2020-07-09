@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, TouchableNativeFeedback, StyleSheet } from 'react-native'
+import { View, Text, TouchableNativeFeedback, StyleSheet,InteractionManager } from 'react-native'
 
 import { parseTimeStamp } from 'utils';
 import { Avatar } from 'components';
@@ -16,9 +16,16 @@ function Chat( props ){
     var recentTime = parseTimeStamp.toLocale(recent_message.createdAt);
     var recentText = recent_message.text;
 
+    const waitAnim = () =>{
+        requestAnimationFrame( () =>{
+            onPress( _id , title)
+
+        });
+    }
+    
     return (
 
-        <TouchableNativeFeedback onPress={ onPress(_id, title ) }>
+        <TouchableNativeFeedback onPress={ waitAnim } delayPressIn={0} >
 
             <View style={styles.chatCard} >
 

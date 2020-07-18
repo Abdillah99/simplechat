@@ -14,47 +14,53 @@ import { StackActions } from '@react-navigation/native';
 
 function CreateGroupChat(props) {
 
-    const [ userList, setUserList ] = useState();
-    const [ selected , setSelected ] = useState( new Map());
-    const [ groupTitle, setGroupTitle ] = useState();
+    const [userList, setUserList] = useState();
+    const [selected, setSelected] = useState(new Map());
+    const [groupTitle, setGroupTitle] = useState();
 
     useEffect(() => {
 
         getAllUser(data => {
 
-            setUserList( data );
-            
+            setUserList(data);
+
         });
 
-    },[]);
+    }, []);
 
 
-    const createNewGroup = ( )  => {
-        requestAnimationFrame(() =>{
+    const createNewGroup = () => {
+        
+        requestAnimationFrame(() => {
 
             var temp = selected;
-            
             let selectedId = [...temp.entries()]
-            .filter( ( { 1:v } ) => v === true)
-            .map( ( [ k ] ) => k);
-            
-            createGroupChat( groupTitle, selectedId, callback =>{
-                // props.navigation.navigate('Chat', {chatId: callback, chatTitle: groupTitle,  });
-                props.navigation.dispatch(
-                    StackActions.replace('Chat',{chatId: callback, chatTitle: groupTitle, })
+                .filter(({ 1: v }) => v === true)
+                .map(([k]) => k);
+
+            if ( !groupTitle || groupTitle === "" || groupTitle.trim() == "" ) {
+
+                alert(' pls write the group title ');
+
+            } else { 
+                createGroupChat(groupTitle, selectedId, callback => {
+                    props.navigation.dispatch(
+                        StackActions.replace('Chat', { chatId: callback, chatTitle: groupTitle, })
                     );
                 });
-                
+            }
+
         })
+        
     }
 
-    const onSelect = useCallback( 
-        id =>{
-            const newSelected = new Map( selected );
+    const onSelect = useCallback(
+        id => {
+            const newSelected = new Map(selected);
             newSelected.set(id, !selected.get(id));
 
             setSelected(newSelected);
-        }, 
+        },
         [selected],
     );
 
@@ -62,14 +68,14 @@ function CreateGroupChat(props) {
     const _renderItem = ({ item, index }) => {
 
         return (
-            
-            <TouchableNativeFeedback onPress={()=> onSelect( item.id ) }>
 
-                <View style={[styles.userContainer,{ backgroundColor: !!selected.get(item.id) ? 'dodgerblue' : 'white' }]}>
+            <TouchableNativeFeedback onPress={() => onSelect(item.id)}>
 
-                <Avatar hasBorder={true}/> 
+                <View style={[styles.userContainer, { backgroundColor: !!selected.get(item.id) ? 'dodgerblue' : 'white' }]}>
 
-                <Text style={styles.userLabel}>{item.username}</Text>
+                    <Avatar hasBorder={true} />
+
+                    <Text style={styles.userLabel}>{item.username}</Text>
 
                 </View>
 
@@ -80,10 +86,10 @@ function CreateGroupChat(props) {
     return (
         <View style={styles.container}>
             <View>
-                <TextInput 
-                    style={{alignSelf:'stretch', backgroundColor:'white'}}
-                    placeholder="Group name" 
-                    onChangeText={( text ) => setGroupTitle( text )} />
+                <TextInput
+                    style={{ alignSelf: 'stretch', backgroundColor: 'white' }}
+                    placeholder="Group name"
+                    onChangeText={(text) => setGroupTitle(text)} />
 
             </View>
 
@@ -103,7 +109,7 @@ function CreateGroupChat(props) {
                 </View>
             </TouchableNativeFeedback>
 
-        
+
         </View>
     )
 }
@@ -111,38 +117,38 @@ function CreateGroupChat(props) {
 export default CreateGroupChat;
 
 const styles = StyleSheet.create({
-    container:{
-        flex:1,
-        padding:6,
-        backgroundColor:'white',
+    container: {
+        flex: 1,
+        padding: 6,
+        backgroundColor: 'white',
     },
-    headingLabel:{
-        fontSize:16,
-        fontFamily:'SFUIText-SemiBold',
+    headingLabel: {
+        fontSize: 16,
+        fontFamily: 'SFUIText-SemiBold',
     },
-    userContainer:{
-        alignSelf: 'stretch', 
-        flexDirection:'row',
-        alignItems:'center', 
-        minHeight: 40, 
-        padding:10,
+    userContainer: {
+        alignSelf: 'stretch',
+        flexDirection: 'row',
+        alignItems: 'center',
+        minHeight: 40,
+        padding: 10,
     },
-    userLabel:{
-        fontSize:14,
-        fontFamily:'SFUIText-Bold',
-        paddingHorizontal:8,
+    userLabel: {
+        fontSize: 14,
+        fontFamily: 'SFUIText-Bold',
+        paddingHorizontal: 8,
     },
-    btnCreateGroup:{
-        alignSelf:'stretch', 
-        height:60, 
-        backgroundColor:'dodgerblue',
-        justifyContent:'center',
-         alignItems:'center',
-         borderRadius:10,
+    btnCreateGroup: {
+        alignSelf: 'stretch',
+        height: 60,
+        backgroundColor: 'dodgerblue',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 10,
     },
-    btnLabel:{
-        fontSize:16,
-        color:'white',
-        fontFamily:'SFUIText-Bold',
+    btnLabel: {
+        fontSize: 16,
+        color: 'white',
+        fontFamily: 'SFUIText-Bold',
     },
 })

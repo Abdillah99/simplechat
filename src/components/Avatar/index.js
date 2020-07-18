@@ -4,26 +4,38 @@ import propTypes from 'prop-types'
 
 import { 
     Image , 
-    View, 
     TouchableOpacity, 
-    StyleSheet 
+    StyleSheet ,
+    Dimensions,
+    ActivityIndicator
 } from 'react-native';
 
+const { width } = Dimensions.get('window');
 
-function Avatar( { onPress, image , hasBorder = false,  borderWidth } ){
+function Avatar( { onPress, image , hasBorder,  borderWidth, size,type } ){
+    
     const defaultImage = require('../../assets/icon/user-default.png');
-    const propBorder = borderWidth ? borderWidth : 0.3;
+    const defaultGroup = require('../../assets/icon/group.png');
 
+    const sourceImage = image ? {uri:image } : type ==='group' ? defaultGroup : defaultImage;
+    const propBorder = borderWidth ? borderWidth : 0.3;
+    
+    const getSize = size === 'small' ? {width:50, height:50} : 
+                    size === 'medium' ? { width:60, height:60} : 
+                    size === 'large' ?{ width:70, height:70} : null;
+
+    const getBorder = { borderWidth : hasBorder ? propBorder : 0};
+    
     return(
         
         <TouchableOpacity 
             onPress={onPress}
-            style={[styles.container, {borderWidth:hasBorder ? propBorder : 0,}]}
-            >
+            style={[styles.container, getBorder , getSize ]}>
             
             <Image 
-                source={ image ? image : defaultImage }
-                style={{flex:1,width:null, height:null, borderRadius:50,}}
+                source={ sourceImage }
+                style={[ styles.imageDefault ]}
+
                 resizeMode="cover"
                 />         
 
@@ -34,15 +46,24 @@ function Avatar( { onPress, image , hasBorder = false,  borderWidth } ){
 Avatar.propTypes ={
     onPress: propTypes.func,
     hasBorder: propTypes.bool,
-
 };
+
+Avatar.defaultProps ={
+    hasBorder: false,
+    size:'small',
+}
 
 const styles = StyleSheet.create({
     container:{
-        width:50,
-        height:50,
         borderRadius:50,
-    }
+        backgroundColor:'white'
+    },
+    imageDefault:{
+        flex:1,
+        width:'100%',
+        height:'100%',
+        borderRadius:50,
+    },
 });
 
 export default Avatar;

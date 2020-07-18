@@ -9,12 +9,14 @@ import {
     TouchableNativeFeedback
 } from 'react-native';
 
-import { useAuthState, useAuthContext } from 'modules';
+import { useAuthState, useAuthContext, useSettingsState, useSettingsAction } from 'modules';
 import { signOutService } from 'services';
 
 export default function Settings( props ){
 
     const { userData }  = useAuthState();
+    const { darkMode } = useSettingsState();
+    const { toggleDarkMode } = useSettingsAction();
     const { signOut: signOutContext } = useAuthContext();
 
     const onLogout = () => {
@@ -30,7 +32,7 @@ export default function Settings( props ){
     const nameLabel = userData? userData.name : 'null';
 
     return(
-        <View style={styles.container}>
+        <View style={[styles.container,{backgroundColor:darkMode ? 'black' : 'white'}]}>
             
             <View style={styles.avatarContainer}>
 
@@ -56,7 +58,7 @@ export default function Settings( props ){
 
                         <Text style={styles.menuLabel}>Dark Theme</Text>
 
-                        <Switch style={{flex:1}} />
+                        <Switch style={{flex:1}} value={darkMode} onValueChange={toggleDarkMode}/>
 
                     </View>
                     <TouchableNativeFeedback onPress={onLogout}>
@@ -82,7 +84,6 @@ const styles = StyleSheet.create({
     container:{
         flex:1,
         flexDirection:'column',
-        backgroundColor:'white',
         padding:6,
     },
     avatarContainer:{

@@ -5,7 +5,8 @@ import {
     TextInput,
     Text,
     StyleSheet,
-    TouchableNativeFeedback
+    TouchableNativeFeedback,
+    ScrollView,
 } from 'react-native';
 
 import { signInService } from '../../services';
@@ -42,9 +43,12 @@ export default SignIn = props => {
 
     return (
 
-        <View style={styles.container}>
-
+        <ScrollView style={styles.container}>
+            
+            <View style={styles.formContainer}>
             <Text style={styles.headerLabel}>Welcome to Firebase SimpleChat!</Text>
+
+            </View>
 
             <View style={styles.formContainer}>
 
@@ -88,7 +92,7 @@ export default SignIn = props => {
 
             </View>
 
-        </View>
+        </ScrollView>
 
     )
 }

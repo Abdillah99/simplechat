@@ -14,9 +14,11 @@ import {
     sendPrivateMessage,
     initializeChatData,
     myChatListListener,
+    markReadMessage,
     refOff
 } from './database';
 
+import { uploadImage } from './storage';
 export{ 
     firebaseSignInEmailPass, 
     firebaseSignOut, 
@@ -36,5 +38,7 @@ export{
     sendPrivateMessage,
     initializeChatData,
     myChatListListener,
-    refOff
+    markReadMessage,
+    refOff,
+    uploadImage
 }

@@ -5,7 +5,7 @@ import {
     currentUserOnService,  
 } from './Auth';
 
-import { initChatList,subscribeChatList, subscribeChat,subScribeMyChatList, initializingFirst } from './Chatting'
+import { initChatList,subscribeChatList, subscribeChat,subScribeMyChatList, initializingFirst,markReadMsg,unSubscribe } from './Chatting'
 
 export { 
     signInService, 
@@ -16,5 +16,7 @@ export {
     subscribeChatList,
     subscribeChat,
     subScribeMyChatList,
-    initializingFirst
+    initializingFirst,
+    markReadMsg,
+    unSubscribe
 };

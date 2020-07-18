@@ -76,6 +76,9 @@ function registerUserService( data, signUpContext ){
     }
 }
 
+function updateUserData(){
+
+}
 
 function currentUserOnService(){
     firebaseGetCurrentUser();

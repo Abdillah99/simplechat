@@ -6,7 +6,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import { useAuthContext, useAuthState, get, keys, ChatProvider } from 'modules';
+import { useAuthContext, useAuthState } from 'modules';
 
 import { MyTab } from 'components';
 
@@ -47,23 +47,44 @@ function HomeTab() {
             <Tab.Screen name="Home" 
                         component={Home} 
                         options={{
-                            tabBarIcon:( <Image source={require('../assets/icon/tab-bar-chat.png')} style={{width:20, height:20, tintColor:'dodgerblue'}}/> )
+                            tabBarIcon:(focused) =>( 
+                                <Image 
+                                    source={require('../assets/icon/tab-bar-chat.png')} 
+                                    style={{width:20, height:20, tintColor:focused ?'dodgerblue' : 'gray'}}/> 
+                            ),
                         }}/>
-            <Tab.Screen name="Settings" component={Settings} />
+            <Tab.Screen name="Settings" component={Settings} 
+                        options={{
+                            tabBarIcon: (focused) => ( 
+                            <Image 
+                                source={require('../assets/icon/tab-bar-setting.png')} 
+                                style={{width:20, height:20, tintColor:focused?'dodgerblue':'gray'}} />
+                            ),
+                        }} />
         </Tab.Navigator>
     )
 }
 
+const forFade = ({ current, closing }) => ({
+    cardStyle: {
+      opacity: current.progress,
+    },
+  });
+  
 function HomeStack() {
 
     return (
         <Stack.Navigator>
-            <Stack.Screen name="Loading" component={Loading} options={{headerShown:false}} />
-            <Stack.Screen name="HomeTab" component={HomeTab} options={{headerShown:false}} />
-            <Stack.Screen name="Chat" component={Chat}  />
-            <Stack.Screen name="CreateChat" component={CreateChat} />
-            <Stack.Screen name="CreateGroupChat" component={CreateGroupChat} />
-            <Stack.Screen name="Profile" component={Profile} />
+            <Stack.Screen 
+                name="Loading" 
+                component={Loading} 
+                options={{headerShown:false, cardStyleInterpolator: forFade }} />
+
+            <Stack.Screen name="HomeTab" component={HomeTab} options={{headerShown:false,  cardStyleInterpolator: forFade }} />
+            <Stack.Screen name="Chat" component={Chat}options={{ cardStyleInterpolator: forFade}}  />
+            <Stack.Screen name="CreateChat" component={CreateChat} options={{cardStyleInterpolator: forFade}} />
+            <Stack.Screen name="CreateGroupChat" component={CreateGroupChat} options={{cardStyleInterpolator: forFade}}/>
+            <Stack.Screen name="Profile" component={Profile} options={{cardStyleInterpolator: forFade}}/>
         </Stack.Navigator>
     )
 }

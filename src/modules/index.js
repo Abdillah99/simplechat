@@ -22,7 +22,9 @@ import {
     sendPrivateMessage,
     initializeChatData,
     myChatListListener,
-    refOff
+    markReadMessage,
+    refOff,
+    uploadImage
 } from './firebase';
 
 export {
@@ -55,6 +57,7 @@ export {
     initializeChatData,
     myChatListListener,
     refOff,
-    
-    ChatProvider, useChatAction, useChatState
+    markReadMessage,
+    ChatProvider, useChatAction, useChatState,
+    uploadImage
 };

@@ -1,11 +1,14 @@
 import React from 'react'
 import { View, Text, TouchableNativeFeedback, StyleSheet, Dimensions,  Image} from 'react-native';
+import { useSettingsState } from 'modules';
 
 const { height, width } = Dimensions.get('screen');
 
 function MyTab({ state, descriptors, navigation }) {
+    const { darkMode } = useSettingsState();
+
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, {backgroundColor: darkMode ? 'black' : 'white'}]}>
             
             {state.routes.map((route, index) => {
 
@@ -46,18 +49,11 @@ function MyTab({ state, descriptors, navigation }) {
                         testID={options.tabBarTestID}
                         onPress={onPress}
                         onLongPress={onLongPress}
-                        key={route.key}
-                    >
+                        key={route.key} >
                         <View  style={{ flex: 1, justifyContent:'center', alignItems:'center'}}>
                             
-                            { options.tabBarIcon }
+                            { options.tabBarIcon( isFocused ) }
                            
-                            <Text style={{ color: isFocused ? 'dodgerblue' : '#222', fontSize:10 }}>
-                                
-                                {label}
-                                
-                            </Text>
-                        
                         </View>
                         
                     </TouchableNativeFeedback>
@@ -71,7 +67,6 @@ function MyTab({ state, descriptors, navigation }) {
 const styles = StyleSheet.create({
     container: {
         alignSelf: 'stretch',
-        backgroundColor: 'white',
         flexDirection: 'row',
         height: Math.round(height / 9),
         elevation: 10

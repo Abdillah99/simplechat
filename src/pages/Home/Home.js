@@ -6,46 +6,33 @@ import {
     StyleSheet,
     TouchableNativeFeedback,
     TouchableOpacity,
-    Image
+    Image,
 } from 'react-native';
 
 import styles from './Style';
 
-import { useAuthState, refOff, useChatState, ChatProvider } from 'modules';
+import { useAuthState, useChatState, } from 'modules';
 import { ChatCard } from 'components'
-import { subScribeMyChatList, subscribeChatList } from 'services';
 
 export default Home = (props) => {
 
     const { userData } = useAuthState();
     const { chats } = useChatState();
 
-    const [ clientChat, setClientChat ] = useState(chats);
-
-    useEffect(() => {
-        //get all user chat id
-        setClientChat(chats);
-        console.log('me run');
-        
-    }, [chats]);
-
     var clientData = () => {
-        var sorted = clientChat.sort((a, b) => b.recent_message.createdAt - a.recent_message.createdAt);
+        var sorted = chats.sort((a, b) => b.recent_message.createdAt - a.recent_message.createdAt);
         return sorted;
     }
 
     const navigating = (id, title) => {
         props.navigation.navigate('Chat', { chatId: id, chatTitle: title, });
-
     }
 
-    const renderItem = ({ item, index }) => {
+    const renderItem = ({ item }) => {
 
         var rcntMsg = item.recent_message != undefined ? item.recent_message : '';
 
         var alreadyRead = rcntMsg.readedBy.includes( userData.id );
-
-        console.log('render item run');
 
         return (
             <ChatCard
@@ -54,6 +41,7 @@ export default Home = (props) => {
                 recent_message={rcntMsg}
                 onPress={ navigating }
                 readed={alreadyRead}
+                type={ item.type }
                 />
         )
     }
@@ -68,13 +56,13 @@ export default Home = (props) => {
 
             <FlatList
                 data={clientData()}
-                extraData={ chats }
+                extraData={chats}
                 keyExtractor={(item) => item._id}
                 renderItem={renderItem}
-                contentContainerStyle={{ paddingHorizontal: 10 }}
+                contentContainerStyle={{ paddingHorizontal: 14 }}
             />
 
-            <TouchableNativeFeedback background={TouchableNativeFeedback.SelectableBackground()} onPress={createChat} style={{ borderRadius: 50 }} >
+            <TouchableNativeFeedback onPress={createChat} style={{ borderRadius: 50 }} >
 
                 <View style={styles.hoverButtonContainer}>
 

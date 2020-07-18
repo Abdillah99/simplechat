@@ -1,4 +1,4 @@
-import { getAllChat, chatListListener, messageListener, initializeChatData, myChatListListener } from 'modules';
+import { getAllChat, chatListListener, messageListener, initializeChatData, myChatListListener, markReadMessage, refOff } from 'modules';
 import auth from '@react-native-firebase/auth';
 
 const getMyUid = ()=> {
@@ -8,6 +8,7 @@ const initializingFirst = ( result ) =>{
     
     var chatList = [];
     var msgList = [];
+
     initializeChatData( onSuccessChat, onSuccessMsg, onFailed );
 
     function onSuccessChat ( res ){
@@ -25,18 +26,10 @@ const initializingFirst = ( result ) =>{
 
     function onSuccessMsg( res ){
         
-        // console.log(Object.keys( res.val() ));
-
-        // groupID/msg
-
-        // res is array of object of our message
         res.forEach( item=>{
             
-            //item is groupId/msgId/msgData
             var itemVal = item.val();            
-            // itemVal.foreach( r =>{
-            //     console.log(r);
-            // })
+      
             Object.keys( itemVal ).forEach( key =>{
                 var msgObj = itemVal[key];
 
@@ -96,7 +89,7 @@ const subscribeChatList = ( id  , callback ) =>{
             var value = res.val();
             
             if( value.type == 'private' ) value.title = value.title[ getMyUid() ];
-            if( value.recent_message.user._id == getMyUid()) value.recent_message.user.name = 'You';
+            if( value.recent_message.user != undefined && value.recent_message.user._id == getMyUid()) value.recent_message.user.name = 'You';
 
             callback( value );
         
@@ -116,6 +109,7 @@ const subScribeMyChatList = ( callback ) =>{
         var value = res.val();
         
         if( value.type == 'private' ) value.title = value.title[ getMyUid() ];
+        if( value.recent_message.user != undefined && value.recent_message.user._id == getMyUid() ) value.recent_message.user.name = 'You';
 
         callback( value );
     
@@ -141,6 +135,20 @@ const subscribeChat =( chatId , callback )=>{
     }
 }
 
+const markReadMsg = ( data=[], chatId ) =>{
+
+    markReadMessage(  chatId , data );    
+
+    function onSuccess( res ){
+
+    
+    }
+
+    function onFailed( err ){
+        console.log( 'Error subscribeChat : ' + err );
+    }
+} 
+
 const createGroup = ( data , callback ) =>{
     
     function onSuccess( res ) {
@@ -164,10 +172,16 @@ const sendMessage = ( chatId, msg ) =>{
 
 }
 
+const unSubscribe = () =>{
+    refOff();
+}
 
 export { 
     initChatList, 
     subScribeMyChatList,
     subscribeChatList,
     subscribeChat,
-    initializingFirst };
+    initializingFirst ,
+    markReadMsg,
+    unSubscribe
+};

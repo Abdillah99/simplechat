@@ -1,78 +1,38 @@
 import AsyncStorage from '@react-native-community/async-storage';
-
-const keys = {
-    'USER_TOKEN'    : 'token',
-    'USERDATA'      : 'uData',
-    'CHATS'         : 'chats',
-};
   
-/// GET Item from asyncStorage return parsed JSON object 
-const get = (storageKey) => AsyncStorage.getItem( storageKey ).then( res => res ? JSON.parse(res) : null );
+const readData = async(storageKey) =>{
+    try{
+        const jsonVal = await AsyncStorage.getItem( storageKey );
+        return jsonVal != null ? JSON.parse( jsonVal ) :null;
+    }catch( e ){
+        console.log( e );
+    }
+} 
 
-//SET item to asyncstorage must be parsed to string
-const set = (storageKey, data) => AsyncStorage.setItem(storageKey, JSON.stringify(data));
-
-const addList = async ( newList ) => {
-
-    const localList = await get(keys.LIST);
-
-    //Auto Increment ID , get last item id + 1 
-    const newId = localList.length > 0 ?  localList[localList.length-1].id + 1 : 0;
-
-    const newData  = Object.assign({id:newId}, newList );
-
-    const lists = [...localList, newData];
-    
-    return set(keys.LIST, lists);
-
-};
-
-//Get only 1 list, return promise
-export const getListById = async ( id ) =>
-{
-    const localList = await get( keys.LIST );
-
-    let list =  localList.find( item => item.id == id);
-
-    return list;
+const storeData = async(storageKey, data) =>{
+    try{
+        const jsonVal = JSON.stringify( data );
+        await AsyncStorage.setItem( storageKey, jsonVal );
+    } catch (e){
+        console.log( e );
+    }
 }
 
-export const updateListById = async( id, data ) =>
-{
-    const localList = await get( keys.LIST );
-    
-    const newData = localList.map( item => {
-
-        if( item.id == id)
-        {
-            item.title = data.title;
-            item.tags = data.tags;
-            item.completed = data.completed;
-            item.task = data.task;
-            item.list = data.list;
-
-        }
-
-        return item;
-
-    });
-
-    console.log( 'updated list ' + JSON.stringify( newData ));
-    
-    return set(keys.LIST, newData );
+const mergeData = async( key , data ) =>{
+    try{
+        const jsonVal = JSON.stringify(data);
+        await AsyncStorage.mergeItem( key, jsonVal );
+    }catch( e ){
+        console.log( e );
+    }
 }
 
-export const deleteList = async( id ) => {
+const clearAllData = async() =>{
+    try{
+        await AsyncStorage.clear();
+    }catch( e ){
+        console.log( e );
+    } 
+} 
 
-    const localList = await get(keys.LIST);
-
-    const newList = localList.filter(item => item.id != id );
-
-    return set(keys.LIST, newList);
-
-}
-
-
-const clear = AsyncStorage.clear;
-
-export { keys, get, set ,clear } 
+export { storeData, readData, mergeData , clearAllData } 

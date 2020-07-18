@@ -134,6 +134,11 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        //RN image crop picker
+        vectorDrawables.useSupportLibrary = true
+        // fix com.android.builder.dexing.DexArchiveMergerException: Error while merging dex archives:
+        //The number of method references in a .dex file cannot exceed 64K.
+        multiDexEnabled true
     }
     splits {
         abi {

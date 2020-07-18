@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, TouchableNativeFeedback, StyleSheet,InteractionManager } from 'react-native'
+import { View, Text, TouchableNativeFeedback, StyleSheet,Dimensions } from 'react-native'
 
 import { parseTimeStamp } from 'utils';
 import { Avatar } from 'components';
@@ -9,7 +9,7 @@ import PropTypes from 'prop-types'
 
 function Chat( props ){
     // id , title and onpress are not updated
-    const { _id, title, recent_message, onPress, readed } = props;
+    const { _id, title, recent_message, onPress, readed, type } = props;
     
     var recentMsgNamelabel = recent_message.user != undefined ? recent_message.user.name + ' : ' : '' ;
 
@@ -19,19 +19,20 @@ function Chat( props ){
     const waitAnim = () =>{
         requestAnimationFrame( () =>{
             onPress( _id , title)
-
         });
     }
     
     return (
 
-        <TouchableNativeFeedback onPress={ waitAnim } delayPressIn={0} >
+        <TouchableNativeFeedback onPress={ waitAnim } >
 
             <View style={styles.chatCard} >
 
                 <View style={styles.leftContainer}>
 
-                    <Avatar hasBorder={true} />
+                    <Avatar 
+                        type={type}
+                        hasBorder={false} />
 
                 </View>
 
@@ -81,12 +82,14 @@ function shouldComponentUpdate(prevProps, nextProps){
     return prevProps.recent_message === nextProps.recent_message;
 }
 
+const { width, height } = Dimensions.get('window');
+
 const styles = StyleSheet.create({
     chatCard: {
         alignSelf: 'stretch',
         flexDirection: 'row',
         backgroundColor: 'white',
-        height: 80,
+        height: height /8,
     },
 
     leftContainer: {

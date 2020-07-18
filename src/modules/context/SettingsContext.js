@@ -4,7 +4,7 @@ const SettingsActionContext = createContext();
 const SettingsStateContext  = createContext();
 
 const initialState = {
-	darkMode: true, 
+	darkMode: false, 
 	firstTime: true,
 	isLoading: true,
 }; 

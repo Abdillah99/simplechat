@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useMemo, useContext, useEffect } from 'react';
-import { subScribeMyChatList, subscribeChatList } from 'services';
+import { subScribeMyChatList, subscribeChatList,unSubscribe } from 'services';
 
 const ChatActionContext = createContext();
 const ChatStateContext  = createContext();
@@ -21,7 +21,6 @@ const key ={
 }
 
 function chatReducer( state, action ) {
-
 	switch (action.type) {
 
         case key.INIT_FETCH :
@@ -34,23 +33,11 @@ function chatReducer( state, action ) {
             };
         
         case key.UPDATE_CHAT_LIST :
-            
-            let objIndx = state.chats.findIndex(obj => obj._id == action.data._id);
-                    
-            if (objIndx != -1) {
-                console.log('same obj')
-                state.chats[objIndx].recent_message = action.data.recent_message;
-                return {...state};
-            }
-            else 
-            {
-                console.log('not same obj ');
-                state.chats.push( action.data );
-
-                return {...state};
+            return{
+                ...state,
+                chats: action.data,
             }
      
-
         case key.UPDATE_MESSAGE :
             return{
                 ...state,
@@ -69,50 +56,74 @@ function chatReducer( state, action ) {
 function ChatProvider(props) {
 
     const [state, dispatch] = useReducer(chatReducer, initialState);
-    
     useEffect(() =>{
 
         if( state.initialized )
         {
             state.chats.forEach( element => {
-                console.log( 'chats update listener ' , element.title);
+
                 subscribeChatList( element._id , chatUpdate =>{
-                    console.log( 'subscribe run ' , chatUpdate);
                     chatAction.updateChatContext(  chatUpdate );
                 })
+
             });
             
             subScribeMyChatList( newChat=>{
-                console.log( 'got new chat list' , newChat );
-                chatAction.updateChatContext(  newChat );
+                chatAction.updateChatContext( newChat );
             });
-
-           
 
         }
 
+        return unSubscribe();
+        
     },[ state.initialized, state.chats ]);
 
 	const chatAction = useMemo( 
         () => ({
-            initChatContext: async data =>{
-
+            initChatContext: data =>{
+                
                 dispatch({ type: key.INIT_FETCH , data: data });
             },
-
+            
             updateChatContext: data =>{
+
+                var sameIndx = state.chats.findIndex( obj => obj._id == data._id );
                 
-                dispatch({ type: key.UPDATE_CHAT_LIST, data:data });
+                //same obj id but different value
+                if( sameIndx != -1 && JSON.stringify(state.chats[sameIndx]) !== JSON.stringify( data ) ){
+                    
+                    state.chats[sameIndx] = data;
+
+                    dispatch({ type: key.UPDATE_CHAT_LIST, data:state.chats });
+                
+                ///diff obj 
+                }else if( sameIndx === -1 ){
+                    state.chats.push( data );
+                    dispatch({ type: key.UPDATE_CHAT_LIST, data:state.chats });
+                }
+                
             },
             
             updateMessageContext: data => {
-                dispatch({ type: key.UPDATE_MESSAGE, data:data });
+                var sameIndx = state.messages.findIndex( obj => obj._id == data._id );
+                //same obj but diff value
+                if( sameIndx != -1 && JSON.stringify(state.messages[sameIndx]) !== JSON.stringify( data )){
+                     //updte prevstate data
+                    state.messages[sameIndx] = data;
+                    
+                    dispatch({ type: key.UPDATE_MESSAGE, data:state.messages });
+                    
+                    
+                }else if( sameIndx === -1 ){
+                    state.messages.push( data );
+
+                    dispatch({ type: key.UPDATE_MESSAGE, data:state.messages });
+                }
+                
             }
 		}),
     )
     
-
-
 	return (
 		<ChatActionContext.Provider value={chatAction}>
 			
@@ -127,8 +138,7 @@ function ChatProvider(props) {
 }
 
 
-function useChatAction() {
-
+function useChatAction(){
 	const context = useContext( ChatActionContext );
 
 	if (context === undefined) {

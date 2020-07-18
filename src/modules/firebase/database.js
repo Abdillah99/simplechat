@@ -102,7 +102,7 @@ function messageListener(chatId, onSuccess, onFailed ) {
             .limitToLast(1)
             .on('child_added', snap => {
                 
-                if (snap.val() != null) {
+                if (snap.val() != null  ) {
 
                     var formatMsg = {
                         ...snap.val(),
@@ -145,6 +145,19 @@ function sendMessage(chatId, msg) {
         }
     })
 
+}
+
+function markReadMessage( chatId,data ){
+    
+    var updates = {};
+    data.forEach( item =>{
+
+        item.readedBy.push( getMyUid() );
+        updates['messages/' + chatId + '/' +item._id + '/readedBy' ] = item.readedBy;
+        updates['chat_list/' + chatId +'/recent_message/readedBy' ]= item.readedBy;
+    })
+    
+    rootRef.update(updates);
 }
 
 function getPrivateChatId(uid, callback) {
@@ -233,7 +246,7 @@ function sendGroupMessage(groupId, msg, callback) {
 
     //update chat_list recent_message
     rootRef.child('chat_list/' + groupId + '/recent_message/')
-        .update(message);
+           .update(message);
 
     callback(newMessage.key);
 }
@@ -390,5 +403,6 @@ export {
     chatListListener,
     initializeChatData,
     myChatListListener,
+    markReadMessage,
     refOff
 }

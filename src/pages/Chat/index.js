@@ -1,97 +1,107 @@
 import React, { useState, useEffect } from 'react'
 import {
     View,
-    Text,
-    InteractionManager,
 } from 'react-native'
 
 import {
     useAuthState,
     sendMessage,
     sendGroupMessage,
-    refOff,
     createPrivateChat,
     useChatState,
-    messageListener
+    messageListener,
+    useChatAction
 } from 'modules';
 
-import { subscribeChat } from 'services';
+import { subscribeChat, markReadMsg } from 'services';
 import {
     GiftedChat,
     Bubble,
     SystemMessage,
     Day,
 } from 'react-native-gifted-chat';
+import { useIsFocused } from '@react-navigation/native';
 
 export default Chat = props => {
-    const { messages:msgContext } = useChatState();
+    const { chats, messages:msgContext } = useChatState();
+    const { updateMessageContext } = useChatAction();
     const { chatId, chatTitle, user2data } = props.route.params;
 
-    const [messages, setMessages] = useState([]);
     const { userData } = useAuthState();
     const { id, name } = userData;
+    
+    
+    const initialData = () =>{
+        
+        if( chatId ){
+            var idMsg = msgContext.findIndex( item => Object.keys(item) == chatId );
+            if( idMsg != -1 ){
+                var msgObj =  Object.values( msgContext[idMsg] )[0];
+                return Object.values(msgObj);
 
+            }else 
+            {
+                return[];
+
+            }
+
+        }
+        else 
+        {
+           return[
+                {
+                    _id: 1,
+                    text: "you're not chatting with this user yet",
+                    system: true,
+                }
+            ]
+        }
+        
+    }
+
+    const [messages, setMessages] = useState( initialData() );
 
     useEffect(() => {
         props.navigation.setOptions({ title: chatTitle });
-    
         if( chatId ){
-            var idMsg = msgContext.findIndex( item => Object.keys(item) == chatId );
            
-            if( idMsg != -1 )
-            {
-                var msgObj = msgContext ? Object.values( msgContext[idMsg] )[0]: [];
-                var msgData = Object.values( msgObj );
-               
-                setMessages( msgData );
-            }
-          
-
             subscribeChat( chatId ,  msg =>{
 
-                setMessages(prevstate => {
-                let objIndx = prevstate.findIndex((obj => obj._id == msg._id));
+                let objIndx = messages.findIndex(obj => obj._id == msg._id);
                 
-                if (objIndx == -1) {
-                    
-                    return GiftedChat.append(prevstate, msg);
-
+                if( objIndx != -1 && JSON.stringify(messages[objIndx]) !== JSON.stringify( msg ) )
+                {
+                    messages[objIndx] = msg;
+                    setMessages( messages );
                 }
-                else {
-                    //replace prevstate data with new updated data
-                    prevstate[objIndx] = msg;
-
-                    return [...prevstate];
+                else if( objIndx === -1 )
+                {
+                    setMessages(GiftedChat.append(messages, msg));
                 }
 
-            });
-        })
-    
-        } else {
-            const msg = {
-                _id: 1,
-                text: "you're not chatting with this user yet",
-                system: true,
-            }
+            })
 
-            setMessages(prevstate => {
-                let objIndx = prevstate.findIndex((obj => obj._id == msg._id));
-                // javascript find index returning -1 if object not exist and 1 if exist
-                if (objIndx == -1) {
-                    //found same state, update prevstate data  
-                    return GiftedChat.append(prevstate, msg);
-
-                }
-                else {
-                    return [...prevstate];
-                }
-
-            });
+            markRead();
         }
 
     }, [chatId]);
 
+    const markRead = () =>{
 
+        if( messages != undefined ){
+                
+            var res = messages.filter( item =>{ 
+                return !item.readedBy.includes( userData.id )
+            });
+
+            if( res.length != 0 )
+            {    
+                markReadMsg( res, chatId  ); 
+
+            }
+        }
+
+    }
     const _renderSystemMessage = (props) => {
 
         return (
@@ -152,12 +162,14 @@ export default Chat = props => {
             text: text,
             createdAt: Date.parse(createdAt),
             user,
+            readedBy:[ userData.id ],
         }
 
         var localMsg = {
             _id: localId,
             text: text,
             createdAt: Date.parse(createdAt),
+            readedBy:[ userData.id ],
             user,
             pending: true,
         };
@@ -168,9 +180,13 @@ export default Chat = props => {
 
         if (chatId) {
             sendGroupMessage(chatId, newMsg, callback => {
-                var updateId = msgAppend.findIndex(x => x._id === localId);
-                msgAppend[updateId]._id = callback;
-                setMessages(msgAppend);
+                if( callback )
+                {
+                    var updateId = msgAppend.findIndex(x => x._id === localId);
+                    msgAppend[updateId]._id = callback;
+                    setMessages(msgAppend);
+
+                }
             });
         }
         else {
@@ -189,7 +205,6 @@ export default Chat = props => {
             });
         }
 
-
     }
 
     const getUser = { _id: userData.id, name: userData.name };
@@ -201,7 +216,6 @@ export default Chat = props => {
             <GiftedChat
                 onSend={msg => onSend(msg)}
                 messages={messages}
-                isTyping={true}
                 renderBubble={chatBubble}
                 user={getUser}
                 renderTime={() => { return null }}

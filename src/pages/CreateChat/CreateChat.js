@@ -8,8 +8,10 @@ import {
     StyleSheet
 } from 'react-native'
 
-import { getAllUser, getPrivateChatId } from 'modules';
+import { getAllUser } from 'modules';
+import { getPrivateChatId } from 'services';
 import { Avatar } from 'components';
+import { StackActions } from '@react-navigation/native';
 
 function CreateChat(props) {
 
@@ -25,11 +27,13 @@ function CreateChat(props) {
 
     },[]);
 
-    const createPrivateChat = ( user2data ) => () =>{
-        getPrivateChatId( user2data.id, chatId =>{
-            props.navigation.navigate('Chat', { chatTitle: user2data.username,  user2data : user2data, chatId:chatId  });        
+    const createPrivateChat = ( user2data ) => async() =>{
         
-        });
+        const id = await getPrivateChatId( user2data.id );
+        props.navigation.dispatch(
+            StackActions.replace('Chat',{
+                chatTitle: user2data.username,  user2data : user2data, chatId:id 
+        }));
         
     }
 
@@ -41,7 +45,7 @@ function CreateChat(props) {
 
                 <View style={styles.userContainer}>
 
-                    <Avatar hasBorder={true}/> 
+                    <Avatar image={item.avatar} hasBorder={true}/> 
 
                     <Text style={styles.userLabel}>{item.username}</Text>
 

@@ -1,9 +1,8 @@
-import {firebaseSignInEmailPass, firebaseSignOut, firebaseRegisterUser, firebaseGetCurrentUser} from './auth';
+import {firebaseSignInEmailPass, firebaseSignOut, firebaseRegisterUser, firebaseGetCurrentUser, fireUpdateUserProfile} from './auth';
 import {  
     createUser , 
     createChat, 
     getAllUser,
-    getAllChat, 
     messageListener,
     sendMessage,
     createGroupChat,
@@ -12,10 +11,11 @@ import {
     createPrivateChat,
     chatListListener,
     sendPrivateMessage,
-    initializeChatData,
     myChatListListener,
     markReadMessage,
-    refOff
+    updateUser,
+    refOff,
+    myFirebase,
 } from './database';
 
 import { uploadImage } from './storage';
@@ -24,10 +24,10 @@ export{
     firebaseSignOut, 
     firebaseRegisterUser, 
     firebaseGetCurrentUser,
+    fireUpdateUserProfile,
     createChat,
     createUser,
     getAllUser,
-    getAllChat,
     messageListener,
     sendMessage,
     createGroupChat,
@@ -36,9 +36,10 @@ export{
     createPrivateChat,
     chatListListener,
     sendPrivateMessage,
-    initializeChatData,
     myChatListListener,
     markReadMessage,
+    updateUser,
     refOff,
-    uploadImage
+    uploadImage,
+    myFirebase
 }

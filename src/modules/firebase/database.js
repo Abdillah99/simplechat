@@ -1,63 +1,21 @@
 import database from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth';
+import storage from '@react-native-firebase/storage';
+
+const { displayName:currUserName, uid:currUserId } = auth().currentUser;
+const currentUser = auth().currentUser;
+
+const serverTime = database.ServerValue.TIMESTAMP;
 
 const rootRef = database().ref();
 
-function initializeChatData(onSuccessChat, onSuccessMsg, onFailed) {
-
-    rootRef.child('users/' + getMyUid() + '/chat_list')
-        .once('value')
-        .then(snap => {
-
-            var idList = [];
-
-            snap.forEach(item => {
-                var chatId = item.val();
-
-                idList.push(chatId);
-
-            });
-
-            return idList;
-        })
-        .then(idArr => {
-            const ew = idArr.map(item => {
-                return rootRef.child('chat_list/' + item).once('value');
-            });
-
-            Promise.all(ew)
-                .then(res => {
-                    onSuccessChat(res);
-                })
-            return idArr;
-
-        })
-        .then(id => {
-            const lel = id.map(item => {
-                return rootRef.child('messages').orderByKey().equalTo(item).once('value');
-            });
-
-            Promise.all(lel)
-                .then(res => {
-                    onSuccessMsg(res);
-                })
-        })
-        .catch(err => {
-            onFailed(err);
-        });
-
-
-}
-
-function getAllChat(onSucces, onFailed) {
-
-    rootRef.child('users/' + getMyUid() + '/chat_list')
-        .on('value', snap => {
-            onSucces(snap);
-        }, error => {
-            onFailed(error);
-        });
-
+const current ={
+    user: {
+        id: currentUser.uid,
+        name: currentUser.displayName,
+        avatar: currentUser.photoURL,
+    },
+    serverTime: serverTime,
 }
 
 function myChatListListener( onSuccess, onFailed ){
@@ -90,9 +48,8 @@ function chatListListener( id, onSucces, onFailed) {
 
 }
 
-
 function refOff() {
-    rootRef.child('chat_list/').off();
+    return rootRef.off();
 }
 
 function messageListener(chatId, onSuccess, onFailed ) {
@@ -122,54 +79,6 @@ function messageListener(chatId, onSuccess, onFailed ) {
 
 }
 
-function sendMessage(chatId, msg) {
-    var storeRef = rootRef.child('messages/' + chatId);
-    storeRef.once('value', snap => {
-
-        if (snap.exists()) {
-
-            var newMessage = storeRef.push();
-
-            var message = {
-                _id: newMessage.key,
-                text: msg.text,
-                createdAt: getTimeStamp(),
-                user: msg.user,
-            }
-
-            newMessage.set(message);
-
-
-        } else {
-            var newChatId = createChat('Mikel', chatId, msg);
-        }
-    })
-
-}
-
-function markReadMessage( chatId,data ){
-    
-    var updates = {};
-    data.forEach( item =>{
-
-        item.readedBy.push( getMyUid() );
-        updates['messages/' + chatId + '/' +item._id + '/readedBy' ] = item.readedBy;
-        updates['chat_list/' + chatId +'/recent_message/readedBy' ]= item.readedBy;
-    })
-    
-    rootRef.update(updates);
-}
-
-function getPrivateChatId(uid, callback) {
-
-    rootRef.child('users/' + getMyUid() + '/private_chat/' + uid)
-        .on('value', snap => {
-            callback(snap.val());
-        });
-
-}
-
-
 function getTimeStamp() {
     return database.ServerValue.TIMESTAMP;
 }
@@ -180,54 +89,6 @@ function getMyUid() {
 
 function getMyName() {
     return auth().currentUser.displayName;
-}
-
-
-function createGroupChat(title, memberList, callback) {
-    var storeRef = rootRef.child('chat_list/'),
-        creatorId = getMyUid(),
-        creatorName = getMyName();
-
-    //add creator ID to memberlist
-    memberList.unshift(creatorId);
-
-    //create new chat_list child
-    var newGroup = storeRef.push();
-    //get chatlist Id 
-    var groupId = newGroup.key;
-    //construct chat_list object
-    var chatData = {
-        _id: newGroup.key,
-        title: title,
-        members: memberList,
-        type: 'group',
-    }
-    //insert chat_list child object
-    newGroup.set(chatData);
-
-    //update all member chat_list 
-    var updates = {};
-
-    memberList.forEach((userId, index) => {
-        //create new key for storing chat_list id 
-        var chatId = rootRef.child('users/' + userId + '/chat_list').push().key;
-
-        updates['users/' + userId + '/chat_list/' + chatId] = groupId;
-    });
-
-    // update user chat_list simultaneously
-    rootRef.update(updates);
-
-    let msg = {
-        text: creatorName + ' created group ' + title,
-        createdAt: getTimeStamp(),
-        system: true,
-    }
-
-    sendGroupMessage(groupId, msg, x =>x );
-
-    callback(groupId);
-
 }
 
 function sendGroupMessage(groupId, msg, callback) {
@@ -308,62 +169,10 @@ function createChat(title, user2Id, msg) {
 
 }
 
-function createPrivateChat(user2data, callback) {
-    const { id: user2Id, username: user2name } = user2data;
-
-    var storeRef = rootRef.child('chat_list/');
-    var myId = getMyUid();
-
-    var newChat = storeRef.push();
-
-    var title = {};
-
-    title[myId] = user2name;
-    title[user2Id] = getMyName();
-
-    var chatData = {
-        _id: newChat.key,
-        type: 'private',
-        title,
-        recent_message: {},
-    }
-
-    newChat.set(chatData);
-
-    var updateChtList = {};
-
-    var myChatId = rootRef.child('users/' + myId +'/chat_list').push().key;
-    var user2ChatId = rootRef.child('users/' + user2Id +'/chat_list').push().key;
-   
-    updateChtList['users/'+myId+'/chat_list/' + myChatId]       = newChat.key;
-    updateChtList['users/'+user2Id+'/chat_list/' + user2ChatId] = newChat.key;
+function updateUser( userId , data ){
+    var userRef = rootRef.child( 'users/'+userId );
     
-    rootRef.update( updateChtList );
-
-    //multiple update user 1 & 2 chat list data 
-    var updates = {};
-
-    //update user 1 & 2 private_chat by inserting id  
-    updates['users/' + myId + '/private_chat/' + user2Id] = newChat.key;
-    updates['users/' + user2Id + '/private_chat/' + myId] = newChat.key;
-
-    rootRef.update(updates);
-
-    callback(newChat.key);
-
-}
-
-function createUser(userId, email, name, profile_image) {
-
-    var storeRef = rootRef.child('users/' + userId);
-
-    storeRef.set({
-        _id: userId,
-        username: name,
-        email: email,
-        profile_image: profile_image,
-    });
-
+    userRef.update( data );
 }
 
 function getAllUser(callback) {
@@ -374,9 +183,9 @@ function getAllUser(callback) {
 
             snapshot.forEach(childSnap => {
 
-                const { username, email, _id: id } = childSnap.val();
+                const { username, email, _id: id, avatar } = childSnap.val();
 
-                const userdat = { id, username, email };
+                const userdat = { id, username, email, avatar };
 
                 if (id != getMyUid()) users.push(userdat);
 
@@ -388,11 +197,280 @@ function getAllUser(callback) {
         });
 }
 
+
+/**
+ * Firebase auth function begin
+ */
+
+ /**
+ * create new user to firebase auth 
+ * @param {Object} data - email, password and name
+ */
+const createUser = ( data ) =>{
+    return auth()
+            .createUserWithEmailAndPassword(data.email, data.password)
+            .catch(err =>{
+                throw err;
+            })
+ }
+
+/**
+ * Sign in to firebase authentication using 
+ * email and password
+ * @param {Object} user - email and password
+ * @returns {Promise} promise
+ */
+const signIn = ( user )=>{
+     return auth().signInWithEmailAndPassword( user.email, user.password );
+}
+/**
+ * signOut from firebase authentication
+ * @returns {Promise} promise
+ */
+const signOut= () =>{
+     return auth().signOut(); 
+ }
+/**
+ * 
+ * @param {Object} data - object  
+ * @returns {Promise} 
+ */
+const updateProfile = ( data )=>{
+
+     return currentUser.updateProfile({
+         ...data
+     });
+ 
+}
+
+/**
+ * Firebase database function
+ * @returns {Promise}
+ */
+ const initialFetch = async () =>{
+    const chatIdArr = await rootRef.child('users/'+currUserId+'/chat_list')
+                                    .once('value');
+
+    
+    const listChat = chatIdArr.val() != null ? Object.keys(chatIdArr.val()) : [];
+
+
+    const chatRes = await rootRef.child('chat_list')
+                                 .orderByChild('members/'+currUserId)
+                                 .once('value')
+
+    const resultChat = chatRes.val() ? Object.values(chatRes.val()) : [];
+
+    const promisedMessage = listChat.map( item => {
+        return rootRef.child('messages')
+                      .orderByKey()
+                      .equalTo(item)
+                      .once('value');
+    });
+
+    // var resultChat    = await Promise.all( promisedChat );
+    var resultMessage = await Promise.all( promisedMessage );
+    
+    return [resultChat, resultMessage];
+
+}
+
+/**
+ * Listen new created chat 
+ */
+ const listenNewChatList = (callback) =>{
+    rootRef.child('chat_list')
+            .orderByChild('members/'+currUserId)
+            .equalTo(true)
+            .limitToLast(1)
+            .on( 'value', value =>{
+                var res = value.val() ? Object.values(value.val())[0]  : null;
+                if( res ) callback(res);
+            })
+}
+ 
+/** 
+ * Listen to chat list update e.g recent message
+ * @param {String} id - chat id  
+ * @returns {Function} 
+ */
+const listenChatListUpdate = ( id, callback ) =>{
+    return rootRef.child('chat_list')
+            .orderByKey()
+            .equalTo(id)
+            .on('child_changed', snapshot=>{
+                var res = snapshot.val()
+                callback( res );
+            });
+}
+/**
+ * Listen new message
+ * @param {String} chatId | chat key /id
+ */
+const listenNewMessage = ( chatId, callback )=>{
+    return rootRef.child('messages/'+chatId)
+                    .orderByKey()
+                    .limitToLast(1)
+                    .on('child_added', snap=>{
+                        callback( snap.val() );
+                    })
+}
+/**
+ * 
+ * @param {String} chatId | chat id
+ * @param {Object} msgData | object
+ */
+const sendMessage = ( chatId, msgData, callback ) =>{
+    var msgRef = rootRef.child('messages/'+chatId);
+    var newMsg = msgRef.push();
+
+    const buildMsg ={
+        _id: newMsg.key,
+        ...msgData,
+        readedBy:[ currUserId ],
+    }
+
+    newMsg.set(buildMsg);
+
+    rootRef.child('chat_list/'+chatId+'/recent_message/')
+            .update(buildMsg);
+
+    callback( newMsg.key );
+}
+/**
+ * Mark readed all not readed user message 
+ * @param {String} chatId 
+ * @param {Array} data 
+ */
+const markReadMessage = ( chatId , data ) =>{
+    var updates = {};
+    data.forEach( element=>{
+        element.readedBy.push( currUserId );
+        updates['messages/'+chatId+'/'+element._id+'/readedBy']=element.readedBy;
+        updates['chat_list/'+chatId+'/recent_message/readedBy']=element.readedBy;
+    })
+    rootRef.update(updates);
+}
+
+/**
+ * 
+ * @param {String} user2id 
+ */
+const getPrivateChatId = ( user2id ) =>{
+    return rootRef.child('users/'+currUserId+'/private_chat/'+user2id)
+                  .once('value')
+}
+
+/**
+ * Creating new group chat
+ * @param {String} title 
+ * @param {Array} memberList 
+ */
+const createGroupChat=( title, memberList, callback )=>{
+    var chatListRef = rootRef.child('chat_list/'),
+        creatorId   = currentUser.uid,
+        creatorName = currentUser.displayName;
+
+    memberList.unshift(creatorId);
+    //convert to set 
+    var memberSet ={};
+    memberList.forEach(item=>memberSet[item] = true);
+
+    var newGroup = chatListRef.push();  
+    var groupId = newGroup.key;
+    var buildChatData = {
+        _id:groupId,
+        title:title,
+        members:memberSet,
+        type:'group',
+    }
+    
+    let sysMsg = {
+        text: creatorName+'created group '+title,
+        createdAt: serverTime,
+        system:true,
+    }
+    //send msg first prevent trigger undefined recent_msg
+    sendMessage(groupId,sysMsg, x=>x);
+
+    newGroup.update(buildChatData);
+
+    var updates = {};
+    memberList.forEach( id =>{
+        updates['users/'+id+'/chat_list/'+groupId] = true;
+    });
+
+    rootRef.update(updates);
+
+
+    
+    callback(groupId);
+}
+
+/**
+ * creating new private chat 
+ * @param {Object} user2Data | { username , Id }
+ * @returns {String} new Chat id 
+ */
+const createPrivateChat = ( user2Data, callback )=>{
+    const {id:user2Id, username: user2Name } = user2Data;
+    var myId = currUserId;
+    var chatRef = rootRef.child('chat_list');
+
+    var newChat = chatRef.push();
+    var chatId = newChat.key;
+    var title = {};
+    title[myId] = user2Name;
+    title[user2Id] = currUserName;
+
+    var memberSet ={};
+    memberSet[myId]=true;
+    memberSet[user2Id]=true;
+
+    var buildChatData ={
+        _id:chatId,
+        type:'private',
+        title,
+        members:memberSet,
+        recent_message:{},
+    }
+
+    newChat.set(buildChatData);
+
+    var updateChat = {};
+
+    updateChat['users/'+myId+'/chat_list/'+chatId] = true;
+    updateChat['users/'+user2Id+'/chat_list/'+chatId] = true;
+   
+    updateChat['users/'+myId+'/private_chat/'+user2Id] = newChat.key;
+    updateChat['users/'+user2Id+'/private_chat/'+myId] = newChat.key;
+
+    rootRef.update(updateChat);
+
+    callback( newChat.key);
+
+}
+export const myFirebase = {
+    createUser,
+    signIn,
+    signOut,
+    updateProfile,
+    listenNewChatList,
+    listenChatListUpdate,
+    listenNewMessage,
+    sendMessage,
+    markReadMessage,
+    getPrivateChatId,
+    createGroupChat,
+    createPrivateChat,
+    initialFetch,
+    current,
+}
+
 export {
     createUser,
     createChat,
     getAllUser,
-    getAllChat,
     messageListener,
     sendMessage,
     createGroupChat,
@@ -401,8 +479,8 @@ export {
     createPrivateChat,
     sendPrivateMessage,
     chatListListener,
-    initializeChatData,
     myChatListListener,
     markReadMessage,
+    updateUser,
     refOff
 }

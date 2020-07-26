@@ -24,32 +24,39 @@ export default Home = (props) => {
         return sorted;
     }
 
-    const navigating = (id, title) => {
+    const onCardPress = (id, title) => {
         props.navigation.navigate('Chat', { chatId: id, chatTitle: title, });
     }
 
     const renderItem = ({ item }) => {
 
-        var rcntMsg = item.recent_message != undefined ? item.recent_message : '';
-
-        var alreadyRead = rcntMsg.readedBy.includes( userData.id );
-
+        var rcntMsg = item.recent_message != undefined ? item.recent_message : false;
+        var userDat = userData != undefined ? userData : {}; 
+        var alreadyRead = rcntMsg ? rcntMsg.readedBy.includes( userDat.id ) : false;
+        
         return (
             <ChatCard
                 _id={item._id}
                 title={item.title}
                 recent_message={rcntMsg}
-                onPress={ navigating }
+                onPress={ onCardPress }
                 readed={alreadyRead}
                 type={ item.type }
                 />
+        )
+    }
+
+    const renderEmptyChat = () =>{
+        return(
+            <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
+                <Text>You're not chatting with anyone yet</Text>
+            </View>
         )
     }
     
     const createChat = () =>{
         props.navigation.navigate('CreateChat');
     }
-
     return (
 
         <View style={styles.container}>
@@ -59,6 +66,7 @@ export default Home = (props) => {
                 extraData={chats}
                 keyExtractor={(item) => item._id}
                 renderItem={renderItem}
+                ListEmptyComponent={renderEmptyChat}
                 contentContainerStyle={{ paddingHorizontal: 14 }}
             />
 

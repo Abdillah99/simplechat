@@ -4,6 +4,7 @@ import {
     firebaseSignInEmailPass,
     firebaseRegisterUser,
     firebaseGetCurrentUser,
+    fireUpdateUserProfile,
     createUser
 } from 'modules';
 
@@ -76,8 +77,16 @@ function registerUserService( data, signUpContext ){
     }
 }
 
-function updateUserData(){
+function updateUserProfile( data ){
+    fireUpdateUserProfile( data ,onSuccess, onFailed );
 
+    function onSuccess(){
+        console.log( 'success updating user data');
+    }
+
+    function onFailed( err ){
+        console.log( err );
+    }
 }
 
 function currentUserOnService(){
@@ -88,5 +97,6 @@ export {
     signInService,
     signOutService,
     registerUserService,
-    currentUserOnService 
+    currentUserOnService,
+    updateUserProfile,
 }

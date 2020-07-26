@@ -1,15 +1,22 @@
-import React,{useState} from 'react'
+import React,{useState, useCallback} from 'react'
 import { View, Text, StyleSheet, ScrollView, TextInput, Modal,ActivityIndicator } from 'react-native'
 import { Avatar, FloatingLabel, LoadingModal } from 'components'
 import ImagePicker from 'react-native-image-crop-picker';
 
-import { uploadImage, useAuthState } from 'modules';
+import { uploadImage, useAuthState,useAuthContext, updateUser, firebaseGetCurrentUser } from 'modules';
+
+import { debounce } from 'lodash';
+import { updateUserProfile } from 'services';
 
 export default function Profile() {
-    const [ img, setImg ]    = useState();
+    const { userData } = useAuthState();
+
+    var tmpImg = userData != undefined ? userData.profileImage : null;
+
+    const [ img, setImg ]    = useState( tmpImg );
     const [ name , setName ] = useState('max');
     const [ isLoading, setLoading ] = useState(false);
-    const { userData } = useAuthState();
+    const { updateProfile } = useAuthContext();
 
     const openPicker = () =>{
 
@@ -23,6 +30,13 @@ export default function Profile() {
             setLoading(true);
             uploadImage( 'users-avatar/', userData.id, image.path)
                         .then( res =>{
+
+                            const data ={
+                                avatar: res,
+                            }
+                            updateUser( userData.id , data );
+                            updateUserProfile({photoURL: res} );
+                            updateProfile({profileImage:res});
                             setImg(res);
                             setLoading(false);
                         });
@@ -33,8 +47,12 @@ export default function Profile() {
 
     }
 
-    const onChangeName = ( text )=> setName( text );
+    const handler = ( param ) => useCallback( debounce(setName( param ), 2000), []);
 
+    const onChangeName = ( text )=>{
+       handler(text);
+    }
+    console.log( firebaseGetCurrentUser() );
     return (
         <ScrollView style={styles.container}>
 

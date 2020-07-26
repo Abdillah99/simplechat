@@ -42,7 +42,9 @@ function CreateGroupChat(props) {
 
                 alert(' pls write the group title ');
 
-            } else { 
+            } else if ( selectedId.length <= 0 ){
+                alert('select member first');
+            }else { 
                 createGroupChat(groupTitle, selectedId, callback => {
                     props.navigation.dispatch(
                         StackActions.replace('Chat', { chatId: callback, chatTitle: groupTitle, })
@@ -73,7 +75,7 @@ function CreateGroupChat(props) {
 
                 <View style={[styles.userContainer, { backgroundColor: !!selected.get(item.id) ? 'dodgerblue' : 'white' }]}>
 
-                    <Avatar hasBorder={true} />
+                    <Avatar image={item.avatar} hasBorder={true} />
 
                     <Text style={styles.userLabel}>{item.username}</Text>
 

@@ -25,9 +25,18 @@ function firebaseSignOut( success_callback, failed_callback ){
 
 }
 
+function fireUpdateUserProfile( data, success_callback, failed_callback ){
+    var user = auth().currentUser;
+
+    user.updateProfile({
+        ...data
+    }).then( success_callback, failed_callback );
+
+}
+
 
 function firebaseGetCurrentUser(){
     return (auth().currentUser);
 }
 
-export{ firebaseSignInEmailPass, firebaseSignOut, firebaseRegisterUser, firebaseGetCurrentUser }
+export{ firebaseSignInEmailPass, firebaseSignOut, firebaseRegisterUser, firebaseGetCurrentUser, fireUpdateUserProfile }

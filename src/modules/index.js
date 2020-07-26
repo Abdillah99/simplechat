@@ -1,17 +1,17 @@
-import { get, keys, clear, set } from './asyncstorage/';
 import { AuthProvider, useAuthContext, useAuthState } from './context/AuthContext';
 import { SettingsProvider, useSettingsAction, useSettingsState } from './context/SettingsContext';
 import { ChatProvider, useChatAction, useChatState } from './context/ChatContext';
 
+import {readData, storeData,mergeData, clearAllData,multiStore,updateData} from './asyncstorage';
 import { 
     firebaseSignInEmailPass, 
     firebaseSignOut, 
     firebaseRegisterUser, 
     firebaseGetCurrentUser, 
+    fireUpdateUserProfile,
     createChat, 
     createUser, 
     getAllUser, 
-    getAllChat,
     messageListener,
     sendMessage,
     createGroupChat,
@@ -20,32 +20,28 @@ import {
     createPrivateChat,
     chatListListener,
     sendPrivateMessage,
-    initializeChatData,
     myChatListListener,
     markReadMessage,
     refOff,
-    uploadImage
+    updateUser,
+    uploadImage,
+    myFirebase,
+    
 } from './firebase';
 
 export {
     AuthProvider,
     useAuthContext,
     useAuthState,
-
     SettingsProvider, useSettingsAction, useSettingsState,
-
-    get,
-    set,
-    keys,
-    clear,
     firebaseSignInEmailPass,
     firebaseSignOut,
     firebaseRegisterUser,
     firebaseGetCurrentUser,
+    fireUpdateUserProfile,
     createUser,
     getAllUser,
     createChat,
-    getAllChat,
     messageListener,
     sendMessage,
     createGroupChat,
@@ -54,10 +50,12 @@ export {
     createPrivateChat,
     chatListListener,
     sendPrivateMessage,
-    initializeChatData,
     myChatListListener,
     refOff,
+    updateUser,
     markReadMessage,
     ChatProvider, useChatAction, useChatState,
-    uploadImage
+    uploadImage,
+    myFirebase,
+    readData, storeData, clearAllData,multiStore,updateData,mergeData
 };

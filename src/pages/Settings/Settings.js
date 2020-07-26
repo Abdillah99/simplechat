@@ -30,13 +30,13 @@ export default function Settings( props ){
     }
 
     const nameLabel = userData? userData.name : 'null';
-
+    const profileImage = userData? userData.profileImage : null;
     return(
         <View style={[styles.container,{backgroundColor:darkMode ? 'black' : 'white'}]}>
             
             <View style={styles.avatarContainer}>
 
-                <Avatar hasBorder={true} />
+                <Avatar image={profileImage} hasBorder={true} />
 
                 <Text style={{fontFamily:'SFUIText-SemiBold'}}>{nameLabel}</Text>
                 

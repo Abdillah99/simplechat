@@ -2,21 +2,34 @@ import {
     signInService, 
     signOutService,
     registerUserService, 
-    currentUserOnService,  
+    currentUserOnService, 
+    updateUserProfile, 
 } from './Auth';
 
-import { initChatList,subscribeChatList, subscribeChat,subScribeMyChatList, initializingFirst,markReadMsg,unSubscribe } from './Chatting'
+import { 
+    subscribeChatList, 
+    subscribeChat,
+    markReadMsg,
+    unSubscribe,
+    initialFetchData,
+    getPrivateChatId,
+    createPrivateChat,
+    sendMessage,
+    subscribeMessageUpdate,
+    subscribeChatUpdate,
+    subscribeNewChat 
+} from './Chatting'
 
 export { 
     signInService, 
     signOutService ,
+    initialFetchData,
+    updateUserProfile,
     registerUserService, 
     currentUserOnService,
-    initChatList,
     subscribeChatList,
     subscribeChat,
-    subScribeMyChatList,
-    initializingFirst,
     markReadMsg,
-    unSubscribe
+    unSubscribe,
+    getPrivateChatId,createPrivateChat,sendMessage,subscribeMessageUpdate,subscribeChatUpdate,subscribeNewChat
 };

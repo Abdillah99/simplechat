@@ -36,6 +36,16 @@ function authReducer(state, action) {
 				userToken: null,
 
 			};
+		
+		case 'UPDATE_PROFILE':
+			return{
+				...state,
+				userData:{
+					...state.userData,
+					...action.userData,
+				}
+				
+			}
 		default:
 			throw new Error('dispatch action not found : ' + action.type);
 
@@ -64,7 +74,9 @@ function AuthProvider(props) {
 				dispatch({ type: 'SIGN_IN', token: data.token, userData: data.userData });
 			},
 
-			restoreToken: async data => {
+			updateProfile: data =>dispatch({ type:'UPDATE_PROFILE', userData: data }),
+
+			restoreToken: data => {
 
 				dispatch({ type: 'RESTORE_TOKEN', token: data.token, userData: data.userData });
 			}

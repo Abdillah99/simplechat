@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 const readData = async(storageKey) =>{
     try{
         const jsonVal = await AsyncStorage.getItem( storageKey );
-        return jsonVal != null ? JSON.parse( jsonVal ) :null;
+        return jsonVal != null ? JSON.parse( jsonVal ) :[];
     }catch( e ){
         console.log( e );
     }
@@ -15,6 +15,25 @@ const storeData = async(storageKey, data) =>{
         await AsyncStorage.setItem( storageKey, jsonVal );
     } catch (e){
         console.log( e );
+    }
+}
+
+const multiStore = async( data ) =>{
+    
+    try{
+        await AsyncStorage.multiSet( data );
+    }catch(e){
+        throw e;
+    }
+}
+
+const updateData = async( key, data ) =>{
+    try{
+        var localData = await readData( key );    
+        const updatedData = localData.push( data );
+        await storeData( key, updatedData );
+    }catch(e){
+        throw e
     }
 }
 
@@ -35,4 +54,4 @@ const clearAllData = async() =>{
     } 
 } 
 
-export { storeData, readData, mergeData , clearAllData } 
+export { storeData, readData, mergeData , clearAllData,multiStore,updateData } 

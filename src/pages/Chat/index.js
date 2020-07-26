@@ -1,90 +1,109 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect,useRef, useLayoutEffect, useCallback } from 'react'
 import {
     View,
 } from 'react-native'
 
 import {
     useAuthState,
-    sendMessage,
-    sendGroupMessage,
-    createPrivateChat,
-    useChatState,
-    messageListener,
-    useChatAction
+    readData,
+    updateData,
 } from 'modules';
 
-import { subscribeChat, markReadMsg } from 'services';
+import { useFocusEffect } from '@react-navigation/native';
+
+import {  
+    markReadMsg,
+    createPrivateChat,
+    sendMessage,
+    subscribeMessageUpdate,
+    unSubscribe 
+} from 'services';
 import {
     GiftedChat,
     Bubble,
     SystemMessage,
     Day,
 } from 'react-native-gifted-chat';
-import { useIsFocused } from '@react-navigation/native';
+import _ from 'lodash';
 
 export default Chat = props => {
-    const { chats, messages:msgContext } = useChatState();
-    const { updateMessageContext } = useChatAction();
     const { chatId, chatTitle, user2data } = props.route.params;
 
     const { userData } = useAuthState();
     const { id, name } = userData;
-    
-    
-    const initialData = () =>{
-        
-        if( chatId ){
-            var idMsg = msgContext.findIndex( item => Object.keys(item) == chatId );
-            if( idMsg != -1 ){
-                var msgObj =  Object.values( msgContext[idMsg] )[0];
-                return Object.values(msgObj);
 
-            }else 
-            {
-                return[];
+    const [messages, setMessages] = useState([]);
 
-            }
+    const myRef = useRef({alreadySubscribe:false, alreadyLoadOffline:false, dataReady:false})
+
+    const loadOfflineData = ( id ) =>{
+        if( id ){
+            readData(id)
+            .then( offlineCache =>{
+                myRef.current.alreadyLoadOffline = true
+                console.log('im loading offline ', offlineCache);
+                setMessages(offlineCache);
+            });
 
         }
-        else 
+        else
         {
-           return[
-                {
-                    _id: 1,
-                    text: "you're not chatting with this user yet",
-                    system: true,
-                }
-            ]
-        }
-        
+            const sysMsg = {
+                _id:0,
+                text:"you're not chatting with this user yet ",
+                system:true,
+            }
+            myRef.current.alreadyLoadOffline = true
+
+            setMessages([sysMsg]) ;
+
+        } 
     }
-
-    const [messages, setMessages] = useState( initialData() );
-
+    useFocusEffect(
+        useCallback(()=>{
+            props.navigation.setOptions({ title: chatTitle });
+        },[])
+    )
     useEffect(() => {
-        props.navigation.setOptions({ title: chatTitle });
-        if( chatId ){
-           
-            subscribeChat( chatId ,  msg =>{
+        if(!myRef.current.alreadyLoadOffline ) loadOfflineData(chatId);
 
-                let objIndx = messages.findIndex(obj => obj._id == msg._id);
-                
-                if( objIndx != -1 && JSON.stringify(messages[objIndx]) !== JSON.stringify( msg ) )
-                {
-                    messages[objIndx] = msg;
-                    setMessages( messages );
-                }
-                else if( objIndx === -1 )
-                {
-                    setMessages(GiftedChat.append(messages, msg));
-                }
-
-            })
-
-            markRead();
+        if( myRef.current.alreadyLoadOffline ){
+            
+            if( !myRef.current.alreadySubscribe && chatId  ){
+                subscribeMessageUpdate( chatId, newMsg =>{
+                    
+                    setMessages( prevstate=>{    
+                        let idx = prevstate.findIndex( obj => obj._id == newMsg._id);                        
+                        if( idx != -1 && !_.isEqual( prevstate[idx], newMsg ) ){
+                            // console.log( 'same diff val index : ', idx , ' data ', prevstate[idx])
+                            prevstate[idx] = newMsg
+                            return [...prevstate]
+                        }else if( idx == -1 ){
+                            // console.log( 'not same at all index : ', idx , ' prevstate  ', prevstate );
+                            if( prevstate != undefined && prevstate.length > 1 ){
+                                const appended = GiftedChat.append([...prevstate,newMsg]);
+                                // console.log( 'result appended prevstate not empty ', appended)
+                                return appended;
+                            }else if( prevstate.length <= 0 || prevstate == undefined ){
+                                // console.log( 'result appended prevstate empty', prevstate)
+                                return [newMsg];
+                            }
+                        }else if( idx != -1 && _.isEqual(prevstate[idx], newMsg )){
+                            // console.log( 'same at all index : ', idx , ' prevstate  ', prevstate );
+                            return [...prevstate]
+                        }
+                    })
+                })
+                myRef.current.alreadySubscribe = true;
+            }
+            
         }
+        return () =>{
+            unSubscribe()
+        }  
+    }, [ chatId,messages ]);
 
-    }, [chatId]);
+  
 
     const markRead = () =>{
 
@@ -123,7 +142,7 @@ export default Chat = props => {
                     fontFamily: 'SFUIText-Reguler',
 
                 }}
-                dateFormat={'ddd hh:mm'}
+                dateFormat={'ddd DD MMM  hh:mm '}
             />
         )
     }
@@ -175,39 +194,36 @@ export default Chat = props => {
         };
 
         var msgAppend = GiftedChat.append(messages, localMsg);
-
         setMessages(msgAppend);
 
         if (chatId) {
-            sendGroupMessage(chatId, newMsg, callback => {
-                if( callback )
-                {
-                    var updateId = msgAppend.findIndex(x => x._id === localId);
-                    msgAppend[updateId]._id = callback;
-                    setMessages(msgAppend);
+            sendMessage( chatId, newMsg, newMsgId =>{
+                var updateId = msgAppend.findIndex(x => x._id === localId);
+                msgAppend[updateId]._id = newMsgId;
+                setMessages(msgAppend);
+            })
 
-                }
-            });
         }
         else {
-            createPrivateChat(user2data, chatId => {
-                props.navigation.setParams({ chatId: chatId });
+            createPrivateChat( user2data, newId=>{
+                sendMessage( newId, newMsg, newMsgId=>{
+                    var indexRecentMsg = msgAppend.findIndex( x=> x._id === localId );
+                    var sysMsg = msgAppend.findIndex( x=> x._id === 1 );
+                
+                    msgAppend[indexRecentMsg]._id = newMsgId;
 
-                sendGroupMessage(chatId, newMsg, callback => {
-                    var updateId = msgAppend.findIndex(x => x._id === localId);
-                    msgAppend[updateId]._id = callback;
-
-                    //remove system msg 
-                    var sysMsg = msgAppend.findIndex(x => x._id == 1);
-                    msgAppend.splice(sysMsg, 1);
-                    setMessages(msgAppend);
+                    msgAppend.splice( sysMsg, 1);
+                    setMessages( msgAppend );   
                 });
-            });
+                props.navigation.setParams({ chatId:newId  });
+            })
+           
+        
         }
 
     }
 
-    const getUser = { _id: userData.id, name: userData.name };
+    const getUser = { _id: userData.id, name: userData.name, avatar: userData.profileImage };
 
     return (
 

@@ -1,102 +1,91 @@
-import { 
-    clear as clearStorage,
-    firebaseSignOut, 
-    firebaseSignInEmailPass,
-    firebaseRegisterUser,
-    firebaseGetCurrentUser,
-    fireUpdateUserProfile,
-    createUser
+import {
+	clearAllData,
+	myFirebase
 } from 'modules';
 
-function signInService( user, signInContext ){
-
-    firebaseSignInEmailPass( user, onSuccess, onFailed );
-   
-    function onSuccess( {user} ){    
-
-        const data ={
-            token:user.uid,
-            userData:{
-                id:user.uid,
-                name: user.displayName,
-                email: user.email,
-                profileImage: user.photoURL,
-            },
-        }
-        
-        signInContext( data );
-        
-    }
-    
-    function onFailed( err ){
-        alert( err );
-    }
-    
+function getCurrentUser(){
+	return myFirebase.getCurrentUser();
 }
 
-function signOutService( signOutContext ){
+function signInService(data, signInContext) {
 
-    firebaseSignOut( onSuccess, onFailed );
+	myFirebase.signIn(data)
+			  .then( res => {
+				  
+			const data = {
+				userData: {
+					id: res.user.uid,
+					name: res.user.displayName,
+					email: res.user.email,
+					profileImage: res.user.photoURL,
+				},
+			}
+			signInContext(data);
+		}).catch(err => {
+			alert(err);
+		})
 
-    function onSuccess(){
-        signOutContext();
-        clearStorage();
-    }    
-    
-    function onFailed(err){
-        alert( err );
-    }
 
 }
 
-function registerUserService( data, signUpContext ){
+function signOutService(signOutContext) {
 
-    firebaseRegisterUser( data , onSuccess, onFailed );
+	myFirebase.signOut()
+		.then(() => {
+			signOutContext();
+			clearAllData();
+		}).catch(err => {
+			alert(err)
+		})
 
-    function onSuccess(){
-
-        const curr = firebaseGetCurrentUser();
-        const data = {
-            token:curr.uid,
-            userData:{
-                id:curr.uid,
-                name: curr.displayName,
-                email: curr.email,
-                profileImage: curr.photoURL,
-            },
-        }   
-
-        signUpContext( data );
-
-        createUser( curr.uid, curr.email, curr.displayName, curr.photoURL );
-
-    }
-
-    function onFailed( err ){
-        console.log( err );
-    }
 }
 
-function updateUserProfile( data ){
-    fireUpdateUserProfile( data ,onSuccess, onFailed );
+async function registerUserService(data, signUpContext) {
+	
+	const user = await myFirebase.registerUser(data)
+	const contextData = {
+		userData: {
+			id: user.uid,
+			name: user.displayName,
+			email: user.email,
+			profileImage: null,
+		},
+	}
+	signUpContext(contextData);
+	
 
-    function onSuccess(){
-        console.log( 'success updating user data');
-    }
-
-    function onFailed( err ){
-        console.log( err );
-    }
 }
 
-function currentUserOnService(){
-    firebaseGetCurrentUser();
+function updateUserProfile(data) {
+
+	var tmp2 = {
+		avatar: data
+	}
+
+	myFirebase.updateBio(tmp2)
+		.catch(err => {
+			alert(err);
+		})
+
+	const tmp = {
+		photoURL: data,
+	}
+	myFirebase.updateProfile(tmp)
+		.catch(err => {
+			alert(err);
+		});
 }
 
-export { 
-    signInService,
-    signOutService,
-    registerUserService,
-    currentUserOnService,
-    updateUserProfile,
+function getUserImage( id ){
+	return myFirebase.getUserProfileImage( id )
+					 .then(res => res.val())
+}
+
+export {
+	signInService,
+	signOutService,
+	registerUserService,
+	updateUserProfile,
+	getCurrentUser,
+	getUserImage,
 }

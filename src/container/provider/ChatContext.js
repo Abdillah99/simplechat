@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useMemo, useContext, useEffect, useRef, useCallback } from 'react';
-import { unSubscribe,subscribeChatUpdate , subscribeNewChat} from 'services';
+import { unSubscribe , subscribeChat} from 'services';
 
 const ChatActionContext = createContext();
 const ChatStateContext  = createContext();
@@ -51,24 +51,18 @@ function chatReducer( state, action ) {
 function ChatProvider(props) {
     const myRef = useRef({alreadySubscribe:false});
     const [state, dispatch] = useReducer(chatReducer, initialState);
-
+    
     useEffect(() =>{
-        console.log('useeffect contex')
         if( state.initialized )
         {   
             if( !myRef.current.alreadySubscribe ){
-                subscribeNewChat( res =>{
-                    if( !state.chats.includes(res) ) chatAction.updateChatContext(  res );
+                subscribeChat( res =>{
+                    if( !state.chats.includes(res) ) chatAction.updateChatContext( res );
                 })
                 myRef.current.alreadySubscribe = true;
-
             }
-
         }
-
-        return () =>{
-            unSubscribe()
-        }
+            
 
     },[ state.initialized, state.chats,state.listChatId ]);
 
@@ -88,13 +82,13 @@ function ChatProvider(props) {
                     JSON.stringify(state.chats[sameIndx]) !== 
                     JSON.stringify( data ) ){
                     
-                    console.log('same obj diff val ');
+                    // console.log('same obj diff val ');
                     state.chats[sameIndx] = data;
                     dispatch({ type: key.UPDATE_CHAT_LIST, data:state.chats });
                     
                 ///diff obj 
                 }else if( sameIndx === -1 ){
-                    console.log('diff obj ADD NEW CHAT ', data._id);
+                    // console.log('diff obj ADD NEW CHAT ', data._id);
                     state.chats.push( data );
                     dispatch({ type: key.UPDATE_CHAT_LIST, data:state.chats });
                 }

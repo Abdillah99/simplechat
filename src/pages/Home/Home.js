@@ -3,7 +3,6 @@ import {
     FlatList,
     View,
     Text,
-    StyleSheet,
     TouchableNativeFeedback,
     TouchableOpacity,
     Image,
@@ -11,7 +10,7 @@ import {
 
 import styles from './Style';
 
-import { useAuthState, useChatState, } from 'modules';
+import {useAuthState,useChatState} from 'container'
 import { ChatCard } from 'components'
 
 export default Home = (props) => {
@@ -29,11 +28,9 @@ export default Home = (props) => {
     }
 
     const renderItem = ({ item }) => {
-
         var rcntMsg = item.recent_message != undefined ? item.recent_message : false;
         var userDat = userData != undefined ? userData : {}; 
-        var alreadyRead = rcntMsg ? rcntMsg.readedBy.includes( userDat.id ) : false;
-        
+        var alreadyRead = rcntMsg.readedBy[userDat.id]? true  : false;
         return (
             <ChatCard
                 _id={item._id}
@@ -42,6 +39,7 @@ export default Home = (props) => {
                 onPress={ onCardPress }
                 readed={alreadyRead}
                 type={ item.type }
+                members={item.members}
                 />
         )
     }

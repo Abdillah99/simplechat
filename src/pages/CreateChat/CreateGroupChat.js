@@ -8,11 +8,13 @@ import {
     StyleSheet
 } from 'react-native'
 
-import { getAllUser, createGroupChat } from 'modules';
+import { getAllUser } from 'modules';
 import { Avatar } from 'components';
 import { StackActions } from '@react-navigation/native';
 
-function CreateGroupChat(props) {
+import {createGroupChat, getContact } from 'services';
+
+export default CreateGroupChat = (props)=> {
 
     const [userList, setUserList] = useState();
     const [selected, setSelected] = useState(new Map());
@@ -20,11 +22,9 @@ function CreateGroupChat(props) {
 
     useEffect(() => {
 
-        getAllUser(data => {
-
+        getContact( data =>{
             setUserList(data);
-
-        });
+        })
 
     }, []);
 
@@ -77,7 +77,7 @@ function CreateGroupChat(props) {
 
                     <Avatar image={item.avatar} hasBorder={true} />
 
-                    <Text style={styles.userLabel}>{item.username}</Text>
+                    <Text style={styles.userLabel}>{item.name}</Text>
 
                 </View>
 
@@ -115,8 +115,6 @@ function CreateGroupChat(props) {
         </View>
     )
 }
-
-export default CreateGroupChat;
 
 const styles = StyleSheet.create({
     container: {

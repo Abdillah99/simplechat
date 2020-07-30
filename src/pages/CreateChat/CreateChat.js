@@ -8,21 +8,18 @@ import {
     StyleSheet
 } from 'react-native'
 
-import { getAllUser } from 'modules';
-import { getPrivateChatId } from 'services';
+import { getPrivateChatId, getContact } from 'services';
 import { Avatar } from 'components';
 import { StackActions } from '@react-navigation/native';
 
-function CreateChat(props) {
+export default CreateChat = (props)=> {
 
     const [ userList, setUserList ] = useState();
     
     useEffect(() => {
 
-        getAllUser(data => {
-
+        getContact(data => {
             setUserList( data );
-            
         });
 
     },[]);
@@ -47,7 +44,7 @@ function CreateChat(props) {
 
                     <Avatar image={item.avatar} hasBorder={true}/> 
 
-                    <Text style={styles.userLabel}>{item.username}</Text>
+                    <Text style={styles.userLabel}>{item.name}</Text>
 
                 </View>
 
@@ -77,8 +74,6 @@ function CreateChat(props) {
         </View>
     )
 }
-
-export default CreateChat;
 
 const styles = StyleSheet.create({
     container:{

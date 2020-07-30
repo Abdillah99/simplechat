@@ -1,70 +1,13 @@
-import { chatListListener, messageListener, initializeChatData, myChatListListener, myFirebase, refOff } from 'modules';
-import auth from '@react-native-firebase/auth';
+import { myFirebase } from 'modules';
 
-const getMyUid = ()=> {
-    return auth().currentUser.uid != null ?auth().currentUser.uid : '' ;
-}
-
-const subscribeChatList = ( id  , callback ) =>{
-    
-        chatListListener( id, onSuccess, onFailed );
-
-        function onSuccess( res ){
-            var value = res.val();
-            
-            if( value.type == 'private' ) value.title = value.title[ getMyUid() ];
-            if( value.recent_message.user != undefined && value.recent_message.user._id == getMyUid()) value.recent_message.user.name = 'You';
-
-            callback( value );
-        
-        }
-    
-        function onFailed( err ){
-            console.log( 'Error subscribeChat : ' + err );
-        }
- 
-}
-
-const subscribeChat =( chatId , callback )=>{
-    
-    messageListener( chatId, onSuccess, onFailed );
-
-    function onSuccess( res ){
-
-        callback( res );
-    
-    }
-
-    function onFailed( err ){
-        console.log( 'Error subscribeChat : ' + err );
-    }
-}
-
-const markReadMsg = ( data=[], chatId ) =>{
-
-    markReadMessage(  chatId , data );    
-
-    function onSuccess( res ){
-
-    
-    }
-
-    function onFailed( err ){
-        console.log( 'Error subscribeChat : ' + err );
-    }
-} 
-
-
-const unSubscribe = () =>{
-    return refOff();
-}
+var currentUser = myFirebase.getCurrentUser();
 
 /**
- * initial fetch data for first time after login 
+ * initial fetch data for the first time after login 
+ * caching to local storage
  */
 export const initialFetchData = async () =>{
-    var myId = myFirebase.current.user.id;
-
+    var myId = myFirebase.getMyUid();
     try{
         var [resChat , resMessage] = await myFirebase.initialFetch();
         var parsedChat = [];
@@ -109,40 +52,27 @@ export const initialFetchData = async () =>{
 }
 
 /**
- * Listen user new chat
+ * Listening chat list update ( created, updated, deleted )
+ * @param {Function} callback || real time data update
  */
-export const subscribeNewChat = ( callback ) =>{
+export const subscribeChat = ( callback ) =>{
     //only run once
-    myFirebase.listenNewChatList( value =>{
+    myFirebase.listenChatList( value =>{
 
-        if( value.type == 'private' ) value.title = value.title[ getMyUid() ];
-        if( value.recent_message.user != undefined &&
-            value.recent_message.user._id == getMyUid())value.recent_message.user.name = 'You';
-    
-        callback(value);
+        if( value.type == 'private' ) value.title = value.title[currentUser.uid];
+        if( value.recent_message != undefined &&
+            value.recent_message.user != undefined &&
+            value.recent_message.user._id == currentUser.uid )value.recent_message.user.name = 'You';
+            
+            callback(value);
         
     });
 }
 
 /**
- * 
- * @param {Array} id 
+ * Listening new created message from same channel / group / chat
+ * @param {String} chatId || chat id / group id 
  * @param {Function} callback 
- */
-export const subscribeChatUpdate = ( id, callback ) =>{
-    //run again when got new id 
-    myFirebase.listenChatListUpdate( id, value=>{
-        if( value.type == 'private' ) value.title = value.title[ getMyUid() ];
-        if( value.recent_message.user != undefined &&
-            value.recent_message.user._id == getMyUid() ) value.recent_message.user.name = 'You';
-
-            callback(value);
-    })
-
-}
-
-/**
- * listen new chat message
  */
 export const subscribeMessageUpdate =( chatId, callback ) =>{
     myFirebase.listenNewMessage( chatId,  newMsg =>{
@@ -157,26 +87,39 @@ export const subscribeMessageUpdate =( chatId, callback ) =>{
 }
 
 /**
- * send message to server
+ * Send message to server 
+ * @param {String} id  
+ * @param {Object} data 
+ * @param {Function} callback 
  */
 export const sendMessage = ( id,data,callback ) =>{
     return myFirebase.sendMessage( id, data,callback );
 }   
 
 /**
- * create Group chat 
+ * Create new group chat 
+ * @param {String} title 
+ * @param {Array} memberList  
+ * @param {Function} callback | callback new groupId  
  */
-export const createGroupChat = () =>{
-
+export const createGroupChat = ( title, memberList, callback ) =>{
+    return myFirebase.createGroupChat( title, memberList, callback )
 }
 
 /**
- * Create new private chat
+ * creating new private chat
+ * @param {Object} user2Data 
+ * @param {Function} callback | callback new chat Id 
  */
 export const createPrivateChat = ( user2Data, callback ) =>{
     return myFirebase.createPrivateChat( user2Data, callback );
 }
 
+/**
+ * Get ChatId from the user 
+ * @param {String} uid 
+ * @returns {String} returning Id or null
+ */
 export const getPrivateChatId = async ( uid ) =>{
     try {
         const id = await myFirebase.getPrivateChatId( uid );
@@ -188,25 +131,44 @@ export const getPrivateChatId = async ( uid ) =>{
 }
 
 /**
- * mark messages as readed 
+ * Get all contact / user 
+ * @param {Function} callback 
  */
-export const markReadMessage = () =>{
-    myFirebase.markReadMessage(  chatId , data );    
+export const getContact = ( callback ) =>{
+    myFirebase.getContact()
+    .then( res=>{
+        
+        var users = [];
+        res.forEach(childSnap => {
+        
+            const { 
+                name, 
+                email, 
+                _id:id, 
+                avatar 
+            } = childSnap.val();
 
-    function onSuccess( res ){
+            const userdat = { id, name, email, avatar };
 
+            if( id != currentUser.uid )users.push(userdat)
+            // if ( id != currentUser.id ) users.push(userdat);
+        })
+
+        callback( users);
+    }).catch(err=>{
+        alert(err);
+    })
     
-    }
-
-    function onFailed( err ){
-        console.log( 'Error subscribeChat : ' + err );
-    }
+}
+/**
+ * Mark message readed by current user
+ * @param {String} chatId 
+ * @param {*} data 
+ */
+export const markReadMessage = ( msgId, data ) =>{
+   return myFirebase.markReadMessage( msgId, data );    
 }
 
-
-export { 
-    subscribeChatList,
-    subscribeChat,
-    markReadMsg,
-    unSubscribe,
-};
+export const unSubscribe = () =>{
+    return myFirebase.refOff
+}

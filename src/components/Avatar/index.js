@@ -12,7 +12,7 @@ import {
 
 const { width } = Dimensions.get('window');
 
-function Avatar( { onPress, image , hasBorder,  borderWidth, size,type } ){
+const  Avatar = ( { onPress, image , hasBorder,  borderWidth, size,type } )=>{
     
     const defaultImage = require('../../assets/icon/user-default.png');
     const defaultGroup = require('../../assets/icon/group.png');

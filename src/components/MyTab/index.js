@@ -1,10 +1,10 @@
 import React from 'react'
 import { View, Text, TouchableNativeFeedback, StyleSheet, Dimensions,  Image} from 'react-native';
-import { useSettingsState } from 'modules';
+import { useSettingsState } from 'container';
 
 const { height, width } = Dimensions.get('screen');
 
-function MyTab({ state, descriptors, navigation }) {
+const MyTab = ({ state, descriptors, navigation }) =>{
     const { darkMode } = useSettingsState();
 
     return (

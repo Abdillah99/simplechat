@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect,useState } from 'react'
 import { View, Text, TouchableNativeFeedback, StyleSheet,Dimensions } from 'react-native'
 
 import { parseTimeStamp } from 'utils';
@@ -6,13 +6,15 @@ import { Avatar } from 'components';
 
 import PropTypes from 'prop-types'
 
+import { getCurrentUser, getUserImage } from 'services';
+import _ from 'lodash';
 
-function Chat( props ){
+const Chat = ( props )=>{
     // id , title and onpress are not updated
-    const { _id, title, recent_message, onPress, readed, type } = props;
-    
-    var recentMsgNamelabel = recent_message.user != undefined ? recent_message.user.name + ' : ' : '' ;
+    const { _id, title, recent_message, onPress, readed, type, members } = props;
+    const [ img , setImg ] = useState();
 
+    var recentMsgNamelabel = recent_message.user != undefined ? recent_message.user.name + ' : ' : '' ;
     var recentTime = parseTimeStamp.toLocale(recent_message.createdAt);
     var recentText = recent_message.text;
 
@@ -21,7 +23,19 @@ function Chat( props ){
             onPress( _id , title)
         });
     }
-    
+    const loadAvatar = () =>{
+        if( type === 'private' ){
+            var res= _.omit(members, getCurrentUser().uid);
+            var id = Object.keys(res)[0];
+            getUserImage(id).then(res=>{
+                if( res ) setImg(res);
+            })
+        }
+    }
+
+    useEffect(()=>{
+        loadAvatar()
+    },[])
     return (
 
         <TouchableNativeFeedback onPress={ waitAnim } >
@@ -32,6 +46,7 @@ function Chat( props ){
 
                     <Avatar 
                         type={type}
+                        image={img}
                         hasBorder={false} />
 
                 </View>

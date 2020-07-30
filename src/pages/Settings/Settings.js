@@ -8,11 +8,15 @@ import {
     Switch,
     TouchableNativeFeedback
 } from 'react-native';
-
-import { useAuthState, useAuthContext, useSettingsState, useSettingsAction } from 'modules';
+import {
+    useAuthContext,
+    useAuthState,
+    useSettingsAction,
+    useSettingsState
+} from 'container';
 import { signOutService } from 'services';
 
-export default function Settings( props ){
+export default Settings = ( props )=>{
 
     const { userData }  = useAuthState();
     const { darkMode } = useSettingsState();

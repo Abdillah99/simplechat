@@ -1,10 +1,8 @@
 import * as React from 'react';
-
-import { MainStack } from 'routes';
-import { AuthProvider, SettingsProvider, ChatProvider } from 'modules';
-
-
-function App() {
+import { ChatProvider, AuthProvider, SettingsProvider } from 'container'
+import { MainStack } from 'routes'
+export default App = ()=> {
+  
   return (
     
     <AuthProvider>
@@ -22,5 +20,3 @@ function App() {
     </AuthProvider>
   );
 }
-
-export default App;

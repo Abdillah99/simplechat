@@ -6,7 +6,9 @@ import {
     StyleSheet,
     TouchableOpacity,
     Switch,
-    TouchableNativeFeedback
+    TouchableNativeFeedback,
+    Image,
+    SectionList
 } from 'react-native';
 import {
     useAuthContext,
@@ -24,15 +26,14 @@ export default Settings = ( props )=>{
     const { signOut: signOutContext } = useAuthContext();
 
     const onLogout = () => {
-
         signOutService( signOutContext );
-
     }
 
     const navigating = ( ) =>{
         props.navigation.navigate( 'Profile' );
     }
-
+    
+ 
     const nameLabel = userData? userData.name : 'null';
     const profileImage = userData? userData.profileImage : null;
     return(
@@ -40,42 +41,19 @@ export default Settings = ( props )=>{
             
             <View style={styles.avatarContainer}>
 
-                <Avatar image={profileImage} hasBorder={true} />
+                <Avatar image={profileImage} hasBorder={true} size="large" />
 
-                <Text style={{fontFamily:'SFUIText-SemiBold'}}>{nameLabel}</Text>
-                
-                <TouchableOpacity onPress={navigating}>
-
-                    <Text style={{fontFamily:'SFUIText-Light',color:'dodgerblue'}}>Edit Profile</Text>
-                
-                </TouchableOpacity>
+                <Text style={{fontFamily:'SFProDisplay-Bold', fontSize:20}}>{nameLabel}</Text>
 
             </View>
             
             <View style={styles.settingsContainer}>
-                
-                <Text style={styles.headingLabel}>Options</Text>
-
-                <View style={styles.menuContainer}>
-                   
-                    <View style={styles.darkThemeContainer}>
-
-                        <Text style={styles.menuLabel}>Dark Theme</Text>
-
-                        <Switch style={{flex:1}} value={darkMode} onValueChange={toggleDarkMode}/>
-
+                <View style={styles.darkThemeContainer}>
+                    <View style={{width:30, height:30, backgroundColor:'black', borderRadius:50, marginRight:8, justifyContent:'center', alignItems:'center'}}>
+                        <Image source={require('../../assets/icon/dark-mode.png')} />
                     </View>
-                    <TouchableNativeFeedback onPress={onLogout}>
-                        
-                        <View style={styles.logOutContainer}>
-
-                            <Text style={styles.logOutLabel}>LogOut</Text>
-
-                        </View>
-
-                    </TouchableNativeFeedback>
-                
-                
+                    <Text style={styles.menuLabel}>Dark Mode</Text>
+                    <Switch style={{flex:1}} trackColor="#fff" thumbTintColor="#fff" tintColor="#fff" value={darkMode} onValueChange={toggleDarkMode}/>
                 </View>
             </View>
 
@@ -88,7 +66,7 @@ const styles = StyleSheet.create({
     container:{
         flex:1,
         flexDirection:'column',
-        padding:6,
+        padding:16,
     },
     avatarContainer:{
         flex:1,
@@ -109,13 +87,14 @@ const styles = StyleSheet.create({
     },
     menuLabel:{
         fontSize:14,
-        fontFamily:'SFUIText-Regular',
+        fontFamily:'SFProText-Regular',
         textAlignVertical:'center',
     },
     darkThemeContainer:{
         alignSelf:'stretch', 
-        height:80,  
+        height:40,  
         flexDirection:'row', 
+        alignItems:'center'
     },
     logOutContainer:{
         alignSelf:'stretch', 

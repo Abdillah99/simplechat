@@ -5,10 +5,10 @@ import {
     FlatList,
     TouchableNativeFeedback,
     TextInput,
-    StyleSheet
+    StyleSheet,
+    CheckBox
 } from 'react-native'
 
-import { getAllUser } from 'modules';
 import { Avatar } from 'components';
 import { StackActions } from '@react-navigation/native';
 
@@ -73,12 +73,18 @@ export default CreateGroupChat = (props)=> {
 
             <TouchableNativeFeedback onPress={() => onSelect(item.id)}>
 
-                <View style={[styles.userContainer, { backgroundColor: !!selected.get(item.id) ? 'dodgerblue' : 'white' }]}>
-
-                    <Avatar image={item.avatar} hasBorder={true} />
-
-                    <Text style={styles.userLabel}>{item.name}</Text>
-
+                <View style={styles.userContainer}>
+                    <View style={{flex:2, flexDirection:'row', alignItems:'center'}}>
+                        <Avatar image={item.avatar} hasBorder={true} size="small" />
+                        <Text style={styles.userLabel}>{item.name}</Text>
+                    </View>
+                    <View style={{flex:2,  alignItems:'flex-end'}}>
+                    <CheckBox 
+                        value={selected.get(item.id)}
+                        style={{ borderRadius:50, color:'black'}}
+                        onValueChange={() => onSelect(item.id)}
+                        />
+                    </View>
                 </View>
 
             </TouchableNativeFeedback>
@@ -87,31 +93,26 @@ export default CreateGroupChat = (props)=> {
 
     return (
         <View style={styles.container}>
-            <View>
+            <Text style={{fontFamily:'SFProText-Semibold', fontSize:16, textAlign:'left'}}>New Group Name</Text>
+            
+            <View style={{borderBottomWidth:1, borderColor:'rgba(0,0,0,0.2)', marginVertical:16}}>
                 <TextInput
-                    style={{ alignSelf: 'stretch', backgroundColor: 'white' }}
-                    placeholder="Group name"
+                    style={{ alignSelf: 'stretch', backgroundColor: 'white', padding:0,fontFamily:'SFProText-Regular'}}
+                    placeholder="Group name (Required)"
                     onChangeText={(text) => setGroupTitle(text)} />
-
             </View>
-
-
             <Text style={styles.headingLabel}>Select member :</Text>
-
             <FlatList
                 data={userList}
                 extraData={selected}
                 renderItem={_renderItem}
                 keyExtractor={(item, index) => item.id}
             />
-
             <TouchableNativeFeedback onPress={createNewGroup}>
                 <View style={styles.btnCreateGroup}>
                     <Text style={styles.btnLabel}> Create Group</Text>
                 </View>
             </TouchableNativeFeedback>
-
-
         </View>
     )
 }
@@ -119,12 +120,13 @@ export default CreateGroupChat = (props)=> {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 6,
+        padding: 12,
         backgroundColor: 'white',
     },
     headingLabel: {
-        fontSize: 16,
-        fontFamily: 'SFUIText-SemiBold',
+        fontSize: 14,
+        fontFamily: 'SFProText-Semibold',
+        color:'rgba(0,0,0,0.4)'
     },
     userContainer: {
         alignSelf: 'stretch',
@@ -144,7 +146,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'dodgerblue',
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: 10,
+        borderRadius: 8,
     },
     btnLabel: {
         fontSize: 16,

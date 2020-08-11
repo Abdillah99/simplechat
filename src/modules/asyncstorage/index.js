@@ -30,8 +30,8 @@ const multiStore = async( data ) =>{
 const updateData = async( key, data ) =>{
     try{
         var localData = await readData( key );    
-        const updatedData = localData.push( data );
-        await storeData( key, updatedData );
+        localData.push( data );
+        await storeData( key, localData );
     }catch(e){
         throw e
     }

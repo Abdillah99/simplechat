@@ -1,24 +1,36 @@
 import React from 'react'
 import { View, Text, ActivityIndicator } from 'react-native'
-import { multiStore, clearAllData } from 'modules';
-import { useChatAction, ChatContainer } from 'container';
-import { initialFetchData } from 'services';
+import { multiStore, clearAllData, readData } from 'modules';
+import { useChatAction, useAuthState } from 'container';
+import { initialFetchData,getUnreceivedMessage } from 'services';
 import { StackActions } from '@react-navigation/native';
 
 export default Loading = (props) => {
     const { initChatContext } = useChatAction();
+    const { isFirstTime } = useAuthState();
     
     const [loadingMsg, setLoadingMsg] = React.useState('Retreiving data from server');
     React.useEffect(() => {
-        clearAllData();
+        if( !isFirstTime ){
+            getUnreceivedMessage()
+            .then(res => {
+                const temp = {
+                    chat: res.chats,
+                }
+                initChatContext(temp);
 
-        initialFetchData()
+            })
+            .finally( () =>{
+                props.navigation.dispatch(
+                    StackActions.replace('HomeTab')
+                );
+            });
+            
+        }else{
+            initialFetchData()
             .then(data => {
-
-                var chatId = data.parsedChat.map(item => item._id);
                 var chats = data.parsedChat;
                 const temp = {
-                    idChat: chatId,
                     chat: chats,
                 }
                 initChatContext(temp);
@@ -36,12 +48,12 @@ export default Loading = (props) => {
                 })
 
                 multiStore(multiSave);
-
             }).then(() => {
                 props.navigation.dispatch(
                     StackActions.replace('HomeTab')
                 );
             })
+        }    
 
     }, [])
 

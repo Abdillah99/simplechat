@@ -8,15 +8,18 @@ const initialState = {
 	isSignout: true,
 	isLoading: true,
 	userData: null,
+	isFirstTime:false,
 };
 
 function authReducer(state, action) {
+	console.log('reducer run ', action.type);
 	switch (action.type) {
 		case 'RESTORE_TOKEN':
-			console.log('restore ', state);
 			return {
 				...state,
 				isLoading: false,
+				isSignout: false,
+				isFirstTime:false,
 				userData: action.userData,
 			};
 		case 'SIGN_IN':
@@ -24,16 +27,20 @@ function authReducer(state, action) {
 				...state,
 				isSignout: false,
 				userData: action.userData,
+				isFirstTime:true,
 			};
 		case 'SIGN_OUT':
 			return {
 				...state,
 				isSignout: true,
 				userData:null,
+				isLoading:false,
+				isFirstTime:false,
 			};
 		case 'UPDATE_PROFILE':
 			return {
 				...state,
+				isFirstTime:false,
 				userData: {
 					...state.userData,
 					...action.userData,
@@ -75,17 +82,29 @@ function AuthProvider(props) {
 			}
 			authValue.restoreToken( data )
 		}else{
-			authValue.restoreToken( {userData:null} );
+			authValue.signOut();
 		}
 	}
 
 	useEffect(() => {
 		//componentdid mount
-		const subscriber = auth().onAuthStateChanged(user =>{ 
-			authStateChanged(user)
-		});
+		const currUser = auth().currentUser;
+		 if( currUser !== null ) {
+			const data={
+				userData:{
+					id:currUser.uid,
+					name:currUser.displayName,
+					email:currUser.email,
+					profileImage:currUser.photoURL
+				}
+			}
+			authValue.restoreToken(data);
+		}else if( currUser === null && state.isSignout ){
+			authValue.signOut();
+		}
+		
 		//component unmount
-		return subscriber;
+	
 
 	},[]);
 

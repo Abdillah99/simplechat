@@ -1,4 +1,7 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet,Dimensions } from 'react-native'
+const { width } = Dimensions.get('screen');
+const paddingSize = width / 23.4375;
+
 export default StyleSheet.create({
     container: {
         flex: 1,

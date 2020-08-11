@@ -4,8 +4,8 @@ import { Image } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { useAuthContext, useAuthState } from 'container'
-import { MyTab } from 'components';
+import { useAuthState } from 'container'
+import { MyTab, MainHeader, ChatHeader } from 'components';
 import {
 	SignIn,
 	SignUp,
@@ -38,7 +38,6 @@ function AuthStack() {
 }
 
 function HomeTab() {
-
 	return (
 		<Tab.Navigator initialRouteName="Home" tabBar={props => <MyTab {...props} />}>
 			<Tab.Screen 
@@ -48,9 +47,10 @@ function HomeTab() {
 					tabBarIcon: (focused) => (
 						<Image
 							source={require('../assets/icon/tab-bar-chat.png')}
-							style={{ width: 20, height: 20, tintColor: focused ? 'dodgerblue' : 'gray' }} />
+							style={{ width: 20, height: 20, tintColor: focused ? 'black' : '#A4AAB2' }} />
 					),
 				}} />
+
 			<Tab.Screen 
 				name="Settings" 
 				component={Settings}
@@ -58,7 +58,7 @@ function HomeTab() {
 					tabBarIcon: (focused) => (
 						<Image
 							source={require('../assets/icon/tab-bar-setting.png')}
-							style={{ width: 20, height: 20, tintColor: focused ? 'dodgerblue' : 'gray' }} />
+							style={{ width: 20, height: 20, tintColor: focused ? 'black' : '#A4AAB2' }} />
 					),
 				}} />
 		</Tab.Navigator>
@@ -74,7 +74,8 @@ const forFade = ({ current, closing }) => ({
 function HomeStack() {
 
 	return (
-		<Stack.Navigator>
+		// screenOptions={{header: ({scene, previous, navigation}) => MainHeader(scene, previous, navigation) }}
+		<Stack.Navigator headerMode="screen" >
 			<Stack.Screen
 				name="Loading"
 				component={Loading}
@@ -86,7 +87,16 @@ function HomeStack() {
 			<Stack.Screen 
 				name="Chat" 
 				component={Chat} 
-				options={{ cardStyleInterpolator: forFade }} />
+				options={{
+					headerShown: true, 
+					cardStyleInterpolator: forFade, 
+					header:({scene, previous, navigation}) =>{
+							return <ChatHeader 
+										scene={scene} 
+										previous={previous} 
+										navigation={navigation} />
+						}}
+				} />
 			<Stack.Screen 
 				name="CreateChat" 
 				component={CreateChat} 

@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useRef, useLayoutEffect, useCallback } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import {
 	View,
+	Text
 } from 'react-native'
 
 import {
 	readData,
 	storeData,
-	myFirebase,
 } from 'modules';
 
-import { useAuthState, ChatContainer } from 'container'
+import { useAuthState } from 'container'
 import { useFocusEffect } from '@react-navigation/native';
 
 import {
@@ -17,14 +17,12 @@ import {
 	createPrivateChat,
 	sendMessage,
 	subscribeMessageUpdate,
-	unSubscribe
+	unSubscribe,
+	markReceiveMessage
 } from 'services';
-import {
-	GiftedChat,
-	Bubble,
-	SystemMessage,
-	Day,
-} from 'react-native-gifted-chat';
+import { GiftedChat } from 'react-native-gifted-chat';
+
+import { ChatHeader, renderDay, renderBubble, renderSystemMessage,renderComposer,renderInputToolbar,renderSend } from 'components';
 import _ from 'lodash';
 
 export default Chat = props => {
@@ -35,14 +33,15 @@ export default Chat = props => {
 	const myRef = useRef({ alreadySubscribe: false, alreadyLoadOffline: false, dataReady: false })
 
 	const loadOfflineData = (id) => {
-		if (id) {
+		if(id){
+
 			readData(id)
-				.then(offlineCache => {
-					myRef.current.alreadyLoadOffline = true
-					setMessages(offlineCache);
-				});
-		}
-		else {
+			.then(offlineCache => {
+				myRef.current.alreadyLoadOffline = true;
+				setMessages(offlineCache);
+			});
+	
+		}else{
 			const sysMsg = {
 				_id: 0,
 				text: "you're not chatting with this user yet ",
@@ -62,47 +61,68 @@ export default Chat = props => {
 	const handleMsgAppend = ( prevstate, nextState) =>{
 		//find object index return -1 if objet not found
 		let objIndex = prevstate.findIndex(obj => obj._id == nextState._id);
+		console.log('handle append obj ind ',objIndex, ' nex ',nextState);
 		//object included in prevstate but with different value
 		if(objIndex != -1 && !_.isEqual(prevstate[objIndex], nextState)){
+			console.log('same obj diff val ')
 			prevstate[objIndex] = nextState
 			storeData(chatId,prevstate);
+			// markReceiveMessage(chatId, nextState._id);
 			return [...prevstate]
 			//Object not included in prevstate
 		} else if (objIndex == -1) {
 			//Object not included in prevstate, and prevstate is not empty
-			if (prevstate != undefined && prevstate.length > 1) {
+			if (prevstate != undefined && prevstate.length >= 1) {
+				console.log('not included not empty ')
 				storeData( chatId,GiftedChat.append([...prevstate, nextState]));
-				return  GiftedChat.append([...prevstate, nextState]);
+				// markReceiveMessage(chatId, nextState._id);
+				
+				return  GiftedChat.append(prevstate, nextState);
 				//Object not included in prevstate, and prevstate is empty
 			} else if (prevstate.length <= 0 || prevstate == undefined) {
-				storeData(chatId,[nextState])
+				console.log('not included empty ')
+				storeData(chatId,[nextState]);
+				// markReceiveMessage(chatId, nextState._id);
 				return [nextState];
 			}
 			///object is included in prevstate with same value 
 		} else if (objIndex != -1 && _.isEqual(prevstate[objIndex], nextState)) {
+			console.log("SAME");
+			// markReceiveMessage(chatId, nextState._id);
 			return [...prevstate];
 		}
 	}
 
 	useEffect(() => {
-		console.log('user 2 data ', user2data);
-		if (!myRef.current.alreadyLoadOffline) loadOfflineData(chatId);
 
-		if (myRef.current.alreadyLoadOffline) {
+		if (!myRef.current.alreadyLoadOffline ) loadOfflineData(chatId);
 
-			if (!myRef.current.alreadySubscribe && chatId) {
-				subscribeMessageUpdate(chatId, newMsg => {
-					setMessages(prevstate => handleMsgAppend(prevstate,newMsg))
+		if (myRef.current.alreadyLoadOffline && !myRef.current.alreadySubscribe && chatId) {
+
+			subscribeMessageUpdate(chatId, newMsg => {
+				setMessages(prevstate =>{
+				
+				if( prevstate !== undefined && prevstate !== null){
+					return handleMsgAppend(prevstate,newMsg)
+				}else{
+					return [newMsg]
+				}
 				})
-				myRef.current.alreadySubscribe = true;
-				markRead();
-			}
+						
+			})
+			myRef.current.alreadySubscribe = true;
+			markRead();
 		}
-		return () => {
-			unSubscribe()
-		}
+	
 	}, [chatId, messages]);
 
+	useEffect(()=>{
+		
+		return () =>{
+			unSubscribe('messages/'+chatId);
+		}
+		
+	},[])
 	const markRead = () => {
 		if (messages != undefined) {
 
@@ -117,57 +137,6 @@ export default Chat = props => {
 			}
 		}
 	}
-	const _renderSystemMessage = (props) => {
-		return (
-			<SystemMessage
-				{...props}
-				textStyle={{
-					fontFamily: 'SFUIText-Regular',
-
-				}}
-			/>
-		)
-	}
-
-	const _renderDay = (props) => {
-		return (
-			<Day
-				{...props}
-				textStyle={{
-					fontFamily: 'SFUIText-Reguler',
-
-				}}
-				dateFormat={'ddd DD MMM  hh:mm '}
-			/>
-		)
-	}
-
-	const chatBubble = (props) => {
-		return (
-			<Bubble
-				{...props}
-				wrapperStyle={{
-					left: {
-						backgroundColor: '#F1F0F0'
-					},
-					right: {
-						backgroundColor: '#0084FF'
-					},
-				}}
-				textStyle={{
-					right: {
-						fontFamily: 'SFUIText-Regular',
-						fontSize: 14
-					},
-					left: {
-						fontFamily: 'SFUIText-Regular',
-						fontSize: 14
-					}
-				}}
-			/>
-		)
-	}
-
 	const onSend = (msg) => {
 		var { text, user, createdAt, _id: localId } = msg[0];
 		var newMsg = {
@@ -208,17 +177,22 @@ export default Chat = props => {
 	}
 
 	const getUser = { _id: userData.id, name: userData.name, avatar: userData.profileImage };
-
 	return (
-	<View style={{ flex: 1, flexDirection: 'column', backgroundColor: 'white' }}>
+	<View style={{flex:1,flexDirection: 'column', backgroundColor: 'white',  }}>
 		<GiftedChat
 			onSend={msg => onSend(msg)}
 			messages={messages}
-			renderBubble={chatBubble}
+			renderBubble={renderBubble}
 			user={getUser}
 			renderTime={() => { return null }}
-			renderSystemMessage={_renderSystemMessage}
-			renderDay={_renderDay}
+			renderSystemMessage={renderSystemMessage}
+			renderDay={renderDay}
+			renderComposer={renderComposer}
+			renderInputToolbar={renderInputToolbar}
+			renderSend={renderSend}
+			messagesContainerStyle={{paddingVertical:12}}
+			timeFormat='HH.MM'
+			alwaysShowSend={true}
 			/>
 	</View>
 	)

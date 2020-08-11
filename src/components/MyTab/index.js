@@ -50,7 +50,7 @@ const MyTab = ({ state, descriptors, navigation }) =>{
                         onPress={onPress}
                         onLongPress={onLongPress}
                         key={route.key} >
-                        <View  style={{ flex: 1, justifyContent:'center', alignItems:'center'}}>
+                        <View  style={{flex:1,justifyContent:'center', alignItems:'center'}}>
                             
                             { options.tabBarIcon( isFocused ) }
                            
@@ -68,8 +68,11 @@ const styles = StyleSheet.create({
     container: {
         alignSelf: 'stretch',
         flexDirection: 'row',
-        height: Math.round(height / 9),
-        elevation: 10
+        justifyContent:'center',
+        paddingHorizontal:width/4,
+        height: Math.round(height /10),
+        maxHeight:50,
+        elevation: 8
     }
 });
 export { MyTab };

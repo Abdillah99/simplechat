@@ -10,8 +10,8 @@ import {
     ActivityIndicator
 } from 'react-native';
 
-const { width } = Dimensions.get('window');
-
+const { width } = Dimensions.get('screen');
+const imageSize = width / 6.25;
 const  Avatar = ( { onPress, image , hasBorder,  borderWidth, size,type } )=>{
     
     const defaultImage = require('../../assets/icon/user-default.png');
@@ -20,12 +20,12 @@ const  Avatar = ( { onPress, image , hasBorder,  borderWidth, size,type } )=>{
     const sourceImage = image ? {uri:image } : type ==='group' ? defaultGroup : defaultImage;
     const propBorder = borderWidth ? borderWidth : 0.3;
     
-    const getSize = size === 'small' ? {width:50, height:50} : 
-                    size === 'medium' ? { width:60, height:60} : 
+    const getSize = size === 'xSmall' ? {width:34, height:34}:
+                    size === 'small' ? {width:50, height:50} : 
+                    size === 'medium' ? { width:imageSize, height:imageSize} : 
                     size === 'large' ?{ width:70, height:70} : null;
 
     const getBorder = { borderWidth : hasBorder ? propBorder : 0};
-    
     return(
         
         <TouchableOpacity 

@@ -1,22 +1,21 @@
 import React, { useState, useCallback } from 'react'
-import { View, Text, StyleSheet, ScrollView, } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, Button } from 'react-native'
 import { Avatar, FloatingLabel, LoadingModal } from 'components'
 import ImagePicker from 'react-native-image-crop-picker';
 
 import { myFirebase } from 'modules';
 import { useAuthContext, useAuthState } from 'container'
 import { debounce } from 'lodash';
-import { updateUserProfile } from 'services';
+import { updateUserProfile, signOutService, setOnline } from 'services';
 
 export default Profile = () => {
 	const { userData } = useAuthState();
-
 	var tmpImg = userData != undefined ? userData.profileImage : null;
 
 	const [img, setImg] = useState(tmpImg);
 	const [name, setName] = useState('max');
 	const [isLoading, setLoading] = useState(false);
-	const { updateProfile } = useAuthContext();
+	const { signOut,updateProfile } = useAuthContext();
 
 	const openPicker = () => {
 		ImagePicker.openPicker({
@@ -45,6 +44,11 @@ export default Profile = () => {
 
 	const onChangeName = (text) => {
 		handler(text);
+	}
+
+	const onPressLogout = () =>{
+		setOnline(false);
+		signOutService(signOut);
 	}
 
 	return (
@@ -77,6 +81,7 @@ export default Profile = () => {
 				</View>
 			</View>
 			<View style={styles.buttonContainer}>
+				<Button title="logOut" onPress={onPressLogout}/>
 			</View>
 			<LoadingModal isVisible={isLoading} text="Uploading image " />
 		</ScrollView>

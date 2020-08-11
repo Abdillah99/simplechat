@@ -9,6 +9,9 @@ import PropTypes from 'prop-types'
 import { getCurrentUser, getUserImage } from 'services';
 import _ from 'lodash';
 
+const {  height, width } = Dimensions.get('window');
+const fontS = width / 26.78;
+
 const Chat = ( props )=>{
     // id , title and onpress are not updated
     const { _id, title, recent_message, onPress, readed, type, members } = props;
@@ -38,7 +41,7 @@ const Chat = ( props )=>{
     },[])
     return (
 
-        <TouchableNativeFeedback onPress={ waitAnim } >
+        <TouchableNativeFeedback onPress={ waitAnim }>
 
             <View style={styles.chatCard} >
 
@@ -47,7 +50,8 @@ const Chat = ( props )=>{
                     <Avatar 
                         type={type}
                         image={img}
-                        hasBorder={false} />
+                        hasBorder={true} 
+                        size="medium" />
 
                 </View>
 
@@ -61,24 +65,25 @@ const Chat = ( props )=>{
 
                     <View style={styles.msgLabelContainer}>
 
-                        <Text style={ [styles.msgLabel, {color:readed? 'gray' : 'black'}] } numberOfLines={1}>
+                        <Text style={ [styles.msgLabel, {color:readed? 'rgba(0,0,0,0.5)' : 'black'}] } numberOfLines={1}>
 
-                            {recentMsgNamelabel + recentText}
+                            {recentMsgNamelabel + recentText }
 
                         </Text>
 
-                        <Text style={[styles.msgTimeLabel,{color:readed? 'gray' : 'black'}]}>  {recentTime}</Text>
+                        <Text style={[styles.msgTimeLabel,{color:readed? 'rgba(0,0,0,0.5)' : 'black'}]} > · {recentTime}</Text>
 
                     </View>
 
                 </View>
-            { !readed && 
+
+                {!readed &&
+                   
                 <View style={styles.rightContainer}>
-
-                    <View style={styles.notificationCircle} />
-
+                   <View style={styles.notificationCircle} /> 
                 </View>
-            }
+                   
+                } 
 
             </View>
 
@@ -97,7 +102,6 @@ function shouldComponentUpdate(prevProps, nextProps){
     return prevProps.recent_message === nextProps.recent_message;
 }
 
-const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
     chatCard: {
@@ -105,48 +109,54 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         backgroundColor: 'white',
         height: height /8,
+        paddingHorizontal:16,
     },
 
     leftContainer: {
-        flex: 1,
+        alignSelf:'stretch',
+        marginRight:8,
         justifyContent: 'center',
+        justifyContent:'center',
     },
 
     centerContainer: {
-        flex: 3.5,
+        flex:1,
         justifyContent: 'center',
     },
     labelTitle: {
-        fontSize: 18,
-        fontFamily: 'SFUIText-Regular',
+        fontSize: 17,
+        fontFamily: 'SFProText-Medium',
+        color:'rgba(0,0,0,1)',
         margin: 0,
         padding: 0,
     },
     msgLabelContainer: {
         flexDirection: 'row',
-        justifyContent: 'center',
+        alignItems:'center',
+        alignSelf:'stretch',
     },
     msgLabel: {
-        maxWidth: '68%',
-        color: 'gray',
-        fontSize: 12,
-        fontFamily: 'SFUIText-Light',
+        fontSize: fontS,
+        fontFamily: 'SFProText-Regular',
         textAlign: 'left',
+        maxWidth:'65%',
         margin: 0,
         padding: 0,
+
     },
     msgTimeLabel: {
-        flex: 1,
-        fontSize: 10,
-        fontFamily: 'SFUIText-Light',
+        fontSize: fontS,
+        alignSelf:'stretch',
+        fontFamily: 'SFProText-Regular',
         textAlign: 'left',
         margin: 0,
         padding: 0,
     },
     rightContainer: {
-        flex: 0.5,
-        flexDirection: 'column',
-        justifyContent: 'center',
+
+        padding:6,
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
         alignItems: 'center',
     },
     notificationCircle: {
@@ -154,9 +164,6 @@ const styles = StyleSheet.create({
         height: 10,
         backgroundColor: 'dodgerblue',
         borderRadius: 50,
-        textAlign: 'center',
-        textAlignVertical: 'center',
-        fontSize: 12,
     },
   
 });

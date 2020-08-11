@@ -64,11 +64,14 @@ export default function ChatContainer(props) {
 
 		}
 
-		return () => {
-			unSubscribe()
-		}
 
 	}, [state.initialized, state.chats, state.listChatId]);
+
+	useEffect(()=>{
+		return ()=>{
+			unSubscribe('chat_list')
+		}
+	},[])
 
 	const chatAction = useMemo(
 		() => ({

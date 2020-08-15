@@ -1,12 +1,11 @@
 import React from 'react'
 import { View, Text, ActivityIndicator } from 'react-native'
-import { multiStore, clearAllData, readData } from 'modules';
-import { useChatAction, useAuthState } from 'container';
+import { multiStore, storeData, readData } from 'modules';
+import { useAuthState } from 'container';
 import { initialFetchData,getUnreceivedMessage } from 'services';
 import { StackActions } from '@react-navigation/native';
 
 export default Loading = (props) => {
-    const { initChatContext } = useChatAction();
     const { isFirstTime } = useAuthState();
     
     const [loadingMsg, setLoadingMsg] = React.useState('Retreiving data from server');
@@ -14,11 +13,9 @@ export default Loading = (props) => {
         if( !isFirstTime ){
             getUnreceivedMessage()
             .then(res => {
-                const temp = {
-                    chat: res.chats,
-                }
-                initChatContext(temp);
-
+                var sortMsg = res.chats.sort((a, b) => b.recent_message.createdAt - a.recent_message.createdAt);
+                storeData('chats', sortMsg);
+                setLoadingMsg('Caching message data');
             })
             .finally( () =>{
                 props.navigation.dispatch(
@@ -29,11 +26,7 @@ export default Loading = (props) => {
         }else{
             initialFetchData()
             .then(data => {
-                var chats = data.parsedChat;
-                const temp = {
-                    chat: chats,
-                }
-                initChatContext(temp);
+                storeData('chats', data.parsedChat);
                 setLoadingMsg('Caching message data');
                 return data.parsedMsg
             }).then(msg => {

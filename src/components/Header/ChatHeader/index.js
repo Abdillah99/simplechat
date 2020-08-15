@@ -52,7 +52,6 @@ const ChatHeader = ({scene, previous, navigation}) => {
     const { options } = scene !== undefined ? scene.descriptor : {};
     const { params } = scene.route !== undefined ? scene.route: {};
     
-    const [ status, setStatus ] = useState(false);
     const [ profile, setProfile ] = useState('');
 
      const title =
@@ -62,6 +61,12 @@ const ChatHeader = ({scene, previous, navigation}) => {
                 ? options.title
                 : scene.route.name;
 
+    const chatType = params.type !== undefined 
+            ? params.type == 'group' 
+            ? 'group'
+            :'private' 
+            :'';
+
     const avatar = 
         profile !== undefined 
         ? profile.avatar 
@@ -70,17 +75,17 @@ const ChatHeader = ({scene, previous, navigation}) => {
     const onArrowPress =() =>{
          navigation.goBack()
     }
-    useEffect(() => {
-        console.log("header didmount");
-        
-        if( params.type !== undefined && params.type == 'private' && params.user2Data !== undefined ){
+
+    useEffect(() => {        
+        if( chatType == 'private' && params.user2Data !== undefined ){
             subsCribeUserStatus( params.user2Data.id , res =>{
                 setProfile(res)
             })
 
         }
         return () => {
-            unSubscribe('users/'+params.user2Data.id);
+            if( chatType == 'private' 
+                && params.user2Data !== undefined ) unSubscribe('users/'+params.user2Data.id);
         }
     }, [])
     return (
@@ -97,7 +102,9 @@ const ChatHeader = ({scene, previous, navigation}) => {
                     </View>
                     <View style={styles.titleContainer}>
                         <Text style={styles.titleStyle}>{title}</Text>
-                        <Text style={styles.statusStyle}>{profile.online?'Online':'Offline'}</Text>
+                        <Text style={styles.statusStyle}>
+                            { chatType == 'group' ? 'GroupInfo' :  profile.online ? 'Online' : 'Offline' }
+                        </Text>
                     </View>
                 </View>
             </TouchableNativeFeedback>

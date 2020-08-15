@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Image } from 'react-native';
 
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator,TransitionSpecs, CardStyleInterpolators } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useAuthState } from 'container'
 import { MyTab, MainHeader, ChatHeader } from 'components';
@@ -47,7 +47,7 @@ function HomeTab() {
 					tabBarIcon: (focused) => (
 						<Image
 							source={require('../assets/icon/tab-bar-chat.png')}
-							style={{ width: 20, height: 20, tintColor: focused ? 'black' : '#A4AAB2' }} />
+							style={{ width: 24, height: 24, tintColor: focused ? 'black' : '#A4AAB2' }} />
 					),
 				}} />
 
@@ -58,7 +58,7 @@ function HomeTab() {
 					tabBarIcon: (focused) => (
 						<Image
 							source={require('../assets/icon/tab-bar-setting.png')}
-							style={{ width: 20, height: 20, tintColor: focused ? 'black' : '#A4AAB2' }} />
+							style={{ width: 24, height: 24, tintColor: focused ? 'black' : '#A4AAB2' }} />
 					),
 				}} />
 		</Tab.Navigator>
@@ -83,28 +83,35 @@ function HomeStack() {
 			<Stack.Screen 
 				name="HomeTab" 
 				component={HomeTab} 
-				options={{ headerShown: false, cardStyleInterpolator: forFade }} />
+				options={{ 
+					headerShown: false, 
+					cardStyleInterpolator: forFade, }} />
 			<Stack.Screen 
 				name="Chat" 
 				component={Chat} 
 				options={{
 					headerShown: true, 
-					cardStyleInterpolator: forFade, 
-					header:({scene, previous, navigation}) =>{
-							return <ChatHeader 
-										scene={scene} 
-										previous={previous} 
-										navigation={navigation} />
-						}}
+					cardStyleInterpolator:forFade, 
+					header:({scene, previous, navigation}) =>( 
+							<ChatHeader 
+							scene={scene} 
+							previous={previous} 
+							navigation={navigation} />
+					)
+					}
 				} />
 			<Stack.Screen 
 				name="CreateChat" 
 				component={CreateChat} 
-				options={{ cardStyleInterpolator: forFade }} />
+				options={{ cardStyleInterpolator:  CardStyleInterpolators.forHorizontalIOS }} />
 			<Stack.Screen 
 				name="CreateGroupChat" 
 				component={CreateGroupChat} 
-				options={{ cardStyleInterpolator: forFade }} />
+				options={{
+					headerShown: false, 
+					cardStyleInterpolator:  CardStyleInterpolators.forVerticalIOS
+				}} 
+			/>
 			<Stack.Screen 
 				name="Profile" 
 				component={Profile} 

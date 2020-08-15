@@ -43,8 +43,12 @@ function authReducer(state, action) {
 				userData:{
 					...state.userData,
 					...action.userData,
-				}
-				
+				}	
+			};
+		case 'SHOW_LOADING' :
+			return{
+				...state,
+				isLoading:true,
 			}
 		default:
 			throw new Error('dispatch action not found : ' + action.type);

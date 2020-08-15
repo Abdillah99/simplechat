@@ -2,7 +2,7 @@ import React, { useEffect,useState } from 'react'
 import { View, Text, TouchableNativeFeedback, StyleSheet,Dimensions } from 'react-native'
 
 import { parseTimeStamp } from 'utils';
-import { Avatar } from 'components';
+import Avatar from '../Avatar';
 
 import PropTypes from 'prop-types'
 
@@ -12,24 +12,30 @@ import _ from 'lodash';
 const {  height, width } = Dimensions.get('window');
 const fontS = width / 26.78;
 
-const Chat = ( props )=>{
+const Chat = ( { onPress, readed, item })=>{
     // id , title and onpress are not updated
-    const { _id, title, recent_message, onPress, readed, type, members } = props;
     const [ img , setImg ] = useState();
+    
+    const title = item.title;
+    const type = item.type;
+    const members = item.members;
+    
+    var recent_message =  item.recent_message != undefined ? item.recent_message : false;
 
     var recentMsgNamelabel = recent_message.user != undefined ? recent_message.user.name + ' : ' : '' ;
     var recentTime = parseTimeStamp.toLocale(recent_message.createdAt);
     var recentText = recent_message.text;
 
     const waitAnim = () =>{
-        requestAnimationFrame( () =>{
-            onPress( _id , title)
-        });
+        onPress(item)
     }
+
     const loadAvatar = () =>{
         if( type === 'private' ){
-            var res= _.omit(members, getCurrentUser().uid);
-            var id = Object.keys(res)[0];
+            var temp = Object.keys(members);
+
+            var res = temp.filter(item => item != getCurrentUser().uid);
+            var id = res[0];
             getUserImage(id).then(res=>{
                 if( res ) setImg(res);
             })
@@ -91,15 +97,17 @@ const Chat = ( props )=>{
     )
 }
 Chat.PropTypes ={
-    id:  PropTypes.object || PropTypes.string,
-    title: PropTypes.object || PropTypes.string,
-    recent_message: PropTypes.object || PropTypes.string,
+    item :PropTypes.arrayOf(PropTypes.shape({
+        title: PropTypes.number.isRequired,
+        type: PropTypes.oneOf(['private','group']),
+        members: PropTypes.object,
+    })),
     onPress: PropTypes.func,
     readed: PropTypes.bool,
 };
 
 function shouldComponentUpdate(prevProps, nextProps){
-    return prevProps.recent_message === nextProps.recent_message;
+    return prevProps.item.recent_message === nextProps.item.recent_message;
 }
 
 

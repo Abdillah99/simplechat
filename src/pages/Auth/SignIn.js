@@ -37,7 +37,7 @@ export default SignIn = props => {
 	}
 
 	return (
-		<ScrollView style={styles.container}>
+		<ScrollView style={styles.container} >
 			<View style={styles.formContainer}>
 				<Text style={styles.headerLabel}>Welcome to Firebase SimpleChat!</Text>
 			</View>
@@ -72,13 +72,13 @@ export default SignIn = props => {
 
 const styles = StyleSheet.create({
 	container: {
-		backgroundColor: '#fff',
-		flex: 1,
-		padding: 12,
+		flex : 1,
+		backgroundColor	: '#fff',
+		padding : 14,
 	},
 	headerLabel: {
-		fontSize: 22,
-		fontFamily: 'SFUIText-Light',
+		fontSize: 28,
+		fontFamily: 'SFProDisplay-Regular',
 		textAlign: 'left',
 		color: 'dodgerblue'
 	},
@@ -90,17 +90,18 @@ const styles = StyleSheet.create({
 	emailLabel: {
 		fontSize: 20,
 		color: '#000',
-		fontFamily: 'SFUIText-Bold'
+		fontFamily: 'SFProText-Bold'
 	},
 	emailTextInput: {
 		alignSelf: 'stretch',
 		backgroundColor: 'whitesmoke',
-		borderWidth: 0.4
+		borderRadius:10,
 	},
 	buttonContainer: {
 		flex: 2,
+		flexDirection:'column',
 		justifyContent: 'flex-end',
-		alignItems: 'center'
+		alignItems: 'center',
 	},
 	buttonSignIn: {
 		alignSelf: 'stretch',

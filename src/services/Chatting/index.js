@@ -53,8 +53,8 @@ export const getUnreceivedMessage = async() =>{
     var myId = getCurrentUser().uid;
 
     var chat = await myFirebase.getAllChat();
-    var chatKey = Object.keys(chat);
-    var chats = Object.values(chat);
+    var chatKey = chat ? Object.keys(chat):[];
+    var chats = chat? Object.values(chat): [];
     
     var parsedChat = [];
     chats.forEach(chatList=>{
@@ -125,20 +125,21 @@ export const subscribeMessageUpdate =( chatId, callback ) =>{
         var msgArr = newMsg ? Object.values(newMsg) :[] ;
         var idList = newMsg ? Object.keys(newMsg) :[];
 
-        myFirebase.markReceiveMessage( chatId, idList);
+        msgArr.sort((a, b) => a.createdAt - b.createdAt);
+
         const delayLoop = (fn, delay) => {
             return (x, i) => {
-              setTimeout(() => {
-                x.pending = false;
-                x.sent = true;
-                x.received = true;
-                fn(x);
-              }, i * delay);
+                setTimeout(() => {
+                    x.pending = false;
+                    x.sent = true;
+                    x.received = true;
+                    fn(x);
+                }, i * delay);
             };
-          };
-
+        };
+        
         msgArr.forEach(delayLoop(callback,500));
-
+        myFirebase.markReceiveMessage( chatId, idList);
     })
 
 }
@@ -239,6 +240,5 @@ export const markReceiveMessage = ( chatId, msgId ) =>{
 }
 
 export const unSubscribe = ( route ) =>{
-    console.log('unsubs run',route);
     return myFirebase.refOff(route)
 }

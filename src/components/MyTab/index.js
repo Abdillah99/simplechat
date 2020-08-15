@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
         justifyContent:'center',
         paddingHorizontal:width/4,
         height: Math.round(height /10),
-        maxHeight:50,
+        maxHeight:70,
         elevation: 8
     }
 });

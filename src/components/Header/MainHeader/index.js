@@ -1,8 +1,7 @@
 import React,{memo} from 'react'
 import { View, Text, StyleSheet, Dimensions, Image,TouchableNativeFeedback } from 'react-native'
 
-import {Avatar}from 'components';
-import SearchBar from 'components/SearchBar';
+import Avatar from '../../Avatar';
 import {useAuthState} from 'container'
 
 const { width, height } = Dimensions.get('screen');

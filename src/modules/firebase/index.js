@@ -7,7 +7,8 @@ const getCurrentUser = () =>{
 }
 
 const getMyUid =() =>{
-    return auth().currentUser.uid;
+    if( auth().currentUser != null ) return auth().currentUser.uid; 
+    else null
 }
 var serverTime = database.ServerValue.TIMESTAMP;
 
@@ -19,8 +20,10 @@ const rootRef = database().ref();
  */
 const setOnline = ( status ) =>{
     var updates ={}
-    updates['users/'+getMyUid()+'/online/'] = status; 
-    rootRef.update(updates);
+    if( getMyUid() != null ){
+        updates['users/'+getMyUid()+'/online/'] = status; 
+        rootRef.update(updates);
+    }
 }
 /**
  * 
@@ -198,9 +201,9 @@ const getAllChatId = () =>{
  * Listen new created chat 
  */
 const listenChatList = (callback) => {
-    database().ref('chat_list')
+    return rootRef.child('chat_list')
             .orderByChild('members/'+ getMyUid())
-            .equalTo(true)
+            .equalTo(true)            
             .on('child_changed', snapshot => {
                 var res = snapshot.val() ?snapshot.val(): null;
                 if (res) callback(res);
@@ -220,10 +223,10 @@ const markReceiveMessage  = (chatId,msgList=[]) =>{
  */
 const listenNewMessage = (chatId, callback) => {
     rootRef.child('messages/'+chatId)
-            .orderByChild('receivedBy/'+getMyUid())
-            .equalTo(null)
-            .on('value', snap => {
-                if( snap !== undefined && snap !== null && snap.val() !== null) callback(snap.val());
+           .orderByChild('receivedBy/'+getMyUid())
+           .equalTo(null)
+           .on('value', snap => {
+                if( snap !== undefined && snap !== null && snap.val() !== null ) callback(snap.val());
             })
 }
 /**
@@ -248,7 +251,7 @@ const sendMessage = (chatId, msgData, callback) => {
     newMsg.set(buildMsg);
 
     rootRef.child('chat_list/' + chatId + '/recent_message/')
-        .update(buildMsg);
+           .update(buildMsg);
 
     callback(newMsg.key);
 }

@@ -2,10 +2,10 @@ import React from 'react'
 import { StyleSheet, Text, View, TextInput, Animated } from 'react-native'
 
 const FloatingLabel = ( props ) => {
-    const { label } = props;
+    const { label,defaultValue } = props;
     const [ isFocused , setFocused ] = React.useState(false);
 
-    const animatedIsFocused = React.useRef(new Animated.Value(props.value === '' ? 0 :1)).current;
+    const animatedIsFocused = React.useRef(new Animated.Value(props.value == '' ? 0 :1)).current;
     
     React.useEffect(()=>{
 
@@ -24,6 +24,7 @@ const FloatingLabel = ( props ) => {
     const labelStyle ={
         position:'absolute',
         left:0,
+        fontFamily:'SFProText-Regular',
         top: animatedIsFocused.interpolate({
             inputRange:[0,1],
             outputRange:[18,0],
@@ -36,7 +37,6 @@ const FloatingLabel = ( props ) => {
             inputRange:[0,1],
             outputRange:['#aaa', '#000']
         }),
-
     }
 
     return (
@@ -45,11 +45,12 @@ const FloatingLabel = ( props ) => {
             <Animated.Text style={labelStyle}>{label} </Animated.Text>
             
                 <TextInput 
-                    {...props}
-                    underlineColorAndroid="#000"
+                    underlineColorAndroid="whitesmoke"
                     onFocus={_onFocus}
                     onBlur={_onBlur}
+                    defaultValue={defaultValue}
                     blurOnSubmit={true}
+                    style={{fontFamily:'SFProText-Regular'}}
                     />
         </View>
     )

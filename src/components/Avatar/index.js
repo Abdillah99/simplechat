@@ -46,6 +46,7 @@ const  Avatar = ( { onPress, image , hasBorder,  borderWidth, size,type } )=>{
 Avatar.propTypes ={
     onPress: propTypes.func,
     hasBorder: propTypes.bool,
+    size:propTypes.oneOf(['xSmall','small', 'medium', 'large']),
 };
 
 Avatar.defaultProps ={

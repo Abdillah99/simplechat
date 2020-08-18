@@ -26,12 +26,16 @@ function AuthStack() {
 	return (
 		<Stack.Navigator>
 			<Stack.Screen 
-				name="SignIn" 
+				name="SignIn"
 				component={SignIn} 
 				options={{ headerShown: false }} />
 			<Stack.Screen 
 				name="SignUp" 
-				component={SignUp} />
+				component={SignUp}
+				options={{ 
+					headerTitle:'Register account',
+					headerStyle:{elevation:0},
+					}} />
 		</Stack.Navigator>
 	);
 
@@ -47,8 +51,9 @@ function HomeTab() {
 					tabBarIcon: (focused) => (
 						<Image
 							source={require('../assets/icon/tab-bar-chat.png')}
-							style={{ width: 24, height: 24, tintColor: focused ? 'black' : '#A4AAB2' }} />
+							style={{ width: 20, height: 20, tintColor: focused ? 'black' : '#A4AAB2' }} />
 					),
+
 				}} />
 
 			<Tab.Screen 
@@ -58,8 +63,9 @@ function HomeTab() {
 					tabBarIcon: (focused) => (
 						<Image
 							source={require('../assets/icon/tab-bar-setting.png')}
-							style={{ width: 24, height: 24, tintColor: focused ? 'black' : '#A4AAB2' }} />
+							style={{ width: 20, height: 20, tintColor: focused ? 'black' : '#A4AAB2' }} />
 					),
+
 				}} />
 		</Tab.Navigator>
 	)
@@ -115,7 +121,10 @@ function HomeStack() {
 			<Stack.Screen 
 				name="Profile" 
 				component={Profile} 
-				options={{ cardStyleInterpolator: forFade }} />
+				options={{ 
+					headerShown:false,
+					cardStyleInterpolator: forFade 
+					}} />
 		</Stack.Navigator>
 	)
 }

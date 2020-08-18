@@ -42,7 +42,9 @@ export default Home = (props) => {
     return (
 
         <SafeAreaView style={styles.container}>
-            <MainHeader onRightButtonPress={navigateCreateChat} onLeftButtonPress={navigateProfile}/>
+            <MainHeader 
+                onRightButtonPress={navigateCreateChat} 
+                onLeftButtonPress={navigateProfile}/>
             <Conversation />
         </SafeAreaView>
 

@@ -25,8 +25,6 @@ import { GiftedChat } from 'react-native-gifted-chat';
 import { renderDay, renderBubble, renderSystemMessage,renderComposer,renderInputToolbar,renderSend } from 'components';
 import _ from 'lodash';
 
-
-
 const actionType ={
 	INIT_SUCCESS: 'INIT_SUCCESS',
 	INIT_FAILED:'INIT_FAILED',
@@ -148,7 +146,7 @@ export default Chat = props => {
 
 
 	useEffect(()=>{
-		
+		console.log('userdata on chat ', userData);
 		return () =>{
 			unSubscribe('messages/'+chatId);
 		}
@@ -213,7 +211,7 @@ export default Chat = props => {
 		</View>
 	)
 
-	const getUser = { _id: userData.id, name: userData.name, avatar: userData.profileImage };
+	var getUser = { _id: userData.id, name: userData.name, avatar: userData.profileImage };
 	return (
 	<View style={{flex:1,flexDirection: 'column', backgroundColor: 'white',  }}>
 		<GiftedChat

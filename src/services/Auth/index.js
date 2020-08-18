@@ -42,11 +42,13 @@ function signOutService(signOutContext) {
 
 async function registerUserService(data, signUpContext) {
 	
-	const user = await myFirebase.registerUser(data)
+	const user = await myFirebase.registerUser(data);
+
+	console.log('res from firebase register ', user)
 	const contextData = {
 		userData: {
-			id: user.uid,
-			name: user.displayName,
+			id: user.id,
+			name: user.name,
 			email: user.email,
 			profileImage: null,
 		},

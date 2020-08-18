@@ -23,7 +23,6 @@ export default SignIn = props => {
 	const onchangeEmail = (text) => setEmail(text);
 	const onchangePass = (text) => setPassword(text);
 
-
 	const onSignIn = () => {
 		if ( !email || email === "" || email.trim() == "" ) return alert('please write ur email');
 		if ( !password || password === "" || password.trim() == "" ) return alert('please write ur password');
@@ -37,36 +36,36 @@ export default SignIn = props => {
 	}
 
 	return (
-		<ScrollView style={styles.container} >
-			<View style={styles.formContainer}>
-				<Text style={styles.headerLabel}>Welcome to Firebase SimpleChat!</Text>
+		<View style={styles.container} >
+			<View style={styles.headerContainer}>
+				
 			</View>
 			<View style={styles.formContainer}>
-				<Text style={styles.emailLabel}>Email</Text>
+				<Text style={styles.headerLabel}> 
+				SimpleChat
+				</Text>
 				<TextInput
 					style={styles.emailTextInput}
 					onChangeText={onchangeEmail}
 					keyboardType='email-address'
-					value={email} />
-			</View>
-			<View style={styles.formContainer}>
-				<Text style={styles.emailLabel}>Password</Text>
+					placeholder='Email'
+					defaultValue={email} />
 				<TextInput
 					style={styles.emailTextInput}
 					onChangeText={onchangePass}
 					secureTextEntry={true}
-					value={password} />
+					placeholder='Password'
+					defaultValue={password} />
 			</View>
 			<View style={styles.buttonContainer}>
-				<Text>Forgot Password?</Text>
 				<TouchableNativeFeedback onPress={onSignIn}>
 					<View style={styles.buttonSignIn}>
-						<Text>SignIn</Text>
+						<Text style={styles.buttonLabel}>Login</Text>
 					</View>
 				</TouchableNativeFeedback>
 				<Text onPress={() => props.navigation.navigate('SignUp')}>Create account</Text>
 			</View>
-		</ScrollView>
+		</View>
 	)
 }
 
@@ -74,18 +73,21 @@ const styles = StyleSheet.create({
 	container: {
 		flex : 1,
 		backgroundColor	: '#fff',
-		padding : 14,
+		padding : 22,
+	},
+	headerContainer:{
+		flex:1,
 	},
 	headerLabel: {
-		fontSize: 28,
-		fontFamily: 'SFProDisplay-Regular',
+		fontSize: 24,
+		fontFamily: 'SFProDisplay-Bold',
 		textAlign: 'left',
-		color: 'dodgerblue'
+		color:'black'
 	},
 	formContainer: {
-		flex: 1,
+		flex:2,
 		flexDirection: 'column',
-		justifyContent: 'center',
+		justifyContent: 'space-evenly',
 	},
 	emailLabel: {
 		fontSize: 20,
@@ -95,7 +97,10 @@ const styles = StyleSheet.create({
 	emailTextInput: {
 		alignSelf: 'stretch',
 		backgroundColor: 'whitesmoke',
-		borderRadius:10,
+		borderColor:'silver',
+		borderWidth:1,
+		borderRadius:4,
+		paddingHorizontal:10,
 	},
 	buttonContainer: {
 		flex: 2,
@@ -103,12 +108,17 @@ const styles = StyleSheet.create({
 		justifyContent: 'flex-end',
 		alignItems: 'center',
 	},
+	buttonLabel:{
+		fontSize:16,
+		fontFamily:'SFProText-Semibold',
+		color:'white'
+	},	
 	buttonSignIn: {
 		alignSelf: 'stretch',
 		backgroundColor: 'dodgerblue',
 		alignItems: 'center',
 		justifyContent: 'center',
 		padding: 16,
-		borderRadius: 10,
+		borderRadius: 5,
 	},
 })

@@ -75,27 +75,30 @@ export default CreateGroupChat = (props) => {
 
 
 	return (
-
 		<View style={styles.container}>
-			<View>
+			<View style={styles.headerButtonContainer}>
 				<TouchableOpacity style={{width:16, height:16}} onPress={()=>props.navigation.goBack()}>
 					<Image source={require('../../assets/icon/close.png')} style={{flex:1, width:null}}/>
 				</TouchableOpacity>
 			</View>
-			<Text style={styles.headerTitle}>New Group Name</Text>
-			<View style={styles.textInputContainer}>
-				<TextInput
-					style={styles.textInputStyle}
-					placeholder="Group name (Required)"
-					onChangeText={(text) => setGroupTitle(text)} />
+			<View style={styles.groupNameContainer}>
+				<Text style={styles.headerTitle}>New Group Name</Text>
+				<View style={styles.textInputContainer}>
+					<TextInput
+						style={styles.textInputStyle}
+						placeholder="Group name (Required)"
+						onChangeText={(text) => setGroupTitle(text)} />
+				</View>
 			</View>
-			<Text style={styles.headingLabel}>Select member :</Text>
-			<FlatList
-				data={userList}
-				extraData={selected}
-				renderItem={_renderItem}
-				keyExtractor={(item, index) => item.id}
-			/>
+			<View style={styles.memberListContainer}>
+				<Text style={styles.headingLabel}>Select member :</Text>
+				<FlatList
+					data={userList}
+					extraData={selected}
+					renderItem={_renderItem}
+					keyExtractor={(item, index) => item.id}
+				/>
+			</View>
 			<TouchableNativeFeedback onPress={createNewGroup}>
 				<View style={styles.btnCreateGroup}>
 					<Text style={styles.btnLabel}> Create Group</Text>
@@ -111,13 +114,25 @@ const styles = StyleSheet.create({
 		padding: 12,
 		backgroundColor: 'white',
 	},
+	headerButtonContainer:{
+		flex:0.5,
+		flexDirection:'column',
+		justifyContent:'center',
+	},	
 	headerTitle: {
-		fontFamily: 'SFProText-Semibold', fontSize: 16, textAlign: 'left',
+		fontFamily: 'SFProText-Semibold', 
+		fontSize: 16, 
+		textAlign: 'left',
+	},
+	groupNameContainer:{
+		flex:2.5,
+		justifyContent:'space-evenly',
+
+		flexDirection:'column',
 	},
 	textInputContainer: {
 		borderBottomWidth: 1,
 		borderColor: 'rgba(0,0,0,0.2)',
-		marginVertical: 16
 	},
 	textInputStyle: {
 		alignSelf: 'stretch',
@@ -129,6 +144,9 @@ const styles = StyleSheet.create({
 		fontSize: 14,
 		fontFamily: 'SFProText-Semibold',
 		color: 'rgba(0,0,0,0.4)'
+	},
+	memberListContainer:{
+		flex:7,	
 	},
 	userContainer: {
 		alignSelf: 'stretch',
@@ -143,16 +161,20 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 8,
 	},
 	btnCreateGroup: {
-		alignSelf: 'stretch',
-		height: 60,
-		backgroundColor: 'dodgerblue',
+		margin:12,
+		height: 38,
+		backgroundColor: 'skyblue',
 		justifyContent: 'center',
 		alignItems: 'center',
-		borderRadius: 8,
+		borderRadius: 4,
+		position:'absolute',
+		bottom:0,
+		left:0,
+		right:0,
 	},
 	btnLabel: {
-		fontSize: 16,
+		fontSize: 14,
 		color: 'white',
-		fontFamily: 'SFUIText-Bold',
+		fontFamily: 'SFUIText-Semibold',
 	},
 })

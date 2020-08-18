@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, TouchableNativeFeedback, StyleSheet, Dimensions,  Image} from 'react-native';
+import { View, Text, TouchableNativeFeedback,TouchableWithoutFeedback, StyleSheet, Dimensions,  Image} from 'react-native';
 import { useSettingsState } from 'container';
 
 const { height, width } = Dimensions.get('screen');
@@ -69,10 +69,10 @@ const styles = StyleSheet.create({
         alignSelf: 'stretch',
         flexDirection: 'row',
         justifyContent:'center',
-        paddingHorizontal:width/4,
         height: Math.round(height /10),
         maxHeight:70,
-        elevation: 8
+        elevation:4,
     }
 });
+
 export { MyTab };

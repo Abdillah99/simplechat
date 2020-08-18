@@ -6,14 +6,15 @@ import ImagePicker from 'react-native-image-crop-picker';
 import { myFirebase } from 'modules';
 import { useAuthContext, useAuthState } from 'container'
 import { debounce } from 'lodash';
-import { updateUserProfile, signOutService, setOnline } from 'services';
+import { updateUserProfile} from 'services';
 
 export default Profile = () => {
 	const { userData } = useAuthState();
 	var tmpImg = userData != undefined ? userData.profileImage : null;
 
 	const [img, setImg] = useState(tmpImg);
-	const [name, setName] = useState('max');
+	const [name, setName] = useState(userData.name );
+	const [email, setEmail] = useState(userData.email);
 	const [isLoading, setLoading] = useState(false);
 	const { signOut,updateProfile } = useAuthContext();
 
@@ -46,17 +47,12 @@ export default Profile = () => {
 		handler(text);
 	}
 
-	const onPressLogout = () =>{
-		setOnline(false);
-		signOutService(signOut);
-	}
-
+	
 	return (
-		<ScrollView style={styles.container}>
+		<View style={styles.container}>
 			<View style={styles.avatarContainer}>
 				<Avatar
 					image={img}
-					hasBorder={true}
 					size="large" />
 				<Text onPress={openPicker}>Change profile</Text>
 			</View>
@@ -64,27 +60,24 @@ export default Profile = () => {
 				<View>
 					<FloatingLabel
 						label="Name"
-						value={name}
+						defaultValue={name}
 						onChangeText={onChangeName}/>
 				</View>
 				<View>
 					<FloatingLabel
 						label="Email"
-						value={name}
+						defaultValue={email}
 						onChangeText={onChangeName}/>
 				</View>
 				<View>
 					<FloatingLabel
 						label="Password"
-						value={name}
 						onChangeText={onChangeName}/>
 				</View>
 			</View>
-			<View style={styles.buttonContainer}>
-				<Button title="logOut" onPress={onPressLogout}/>
-			</View>
+		
 			<LoadingModal isVisible={isLoading} text="Uploading image " />
-		</ScrollView>
+		</View>
 	)
 }
 
@@ -92,7 +85,7 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		backgroundColor: 'white',
-		paddingHorizontal: 12,
+		padding:12,
 	},
 	avatarContainer: {
 		flex: 2,

@@ -39,38 +39,35 @@ export default SignUp = props => {
 	}
 
 	return (
-		<ScrollView style={styles.container}>
+		<View style={styles.container}>
 			<View style={styles.formContainer}>
-				<Text style={styles.emailLabel}>Name</Text>
 				<TextInput
 					style={styles.emailTextInput}
 					onChangeText={onChangeName}
-					value={name} />
-			</View>
-			<View style={styles.formContainer}>
-				<Text style={styles.emailLabel}>Email</Text>
+					placeholder='Name'
+					defaultValue={name} />
 				<TextInput
 					style={styles.emailTextInput}
 					onChangeText={onChangeEmail}
 					keyboardType='email-address'
-					value={email} />
-			</View>
-			<View style={styles.formContainer}>
-				<Text style={styles.emailLabel}>Password</Text>
+					placeholder='Email'
+					defaultValue={email} />
 				<TextInput
 					style={styles.emailTextInput}
 					onChangeText={onChangePass}
 					secureTextEntry={true}
-					value={password} />
+					placeholder='Password'
+					defaultValue={password} />
 			</View>
-			<View style={styles.buttonContainer}>
+			<View>
 				<TouchableNativeFeedback onPress={onSignUp}>
-					<View style={styles.buttonSignIn}>
-						<Text>SignUp</Text>
+					<View style={styles.buttonRegister}>
+						<Text style={styles.registerLabel}>Register Account</Text>
 					</View>
 				</TouchableNativeFeedback>
 			</View>
-		</ScrollView>
+	
+		</View>
 	)
 }
 
@@ -78,32 +75,42 @@ const styles = StyleSheet.create({
 	container: {
 		backgroundColor: '#fff',
 		flex: 1,
-		padding: 12,
+		padding: 22,
 	},
 	formContainer: {
 		flex: 1,
 		flexDirection: 'column',
-		justifyContent: 'center',
 	},
-	emailLabel: {
-		fontSize: 20,
+	formLabel: {
+		fontSize: 14,
 		color: '#000',
+		fontFamily:'SFProDisplay-Regular'
 	},
 	emailTextInput: {
 		alignSelf: 'stretch',
-		backgroundColor: '#fefe'
+		backgroundColor:'whitesmoke',
+		borderColor:'silver',
+		fontFamily:'SFProText-Semibold',
+		borderWidth:1,
+		borderRadius:4,
+		marginVertical:8,
+		paddingHorizontal:10,
 	},
 	buttonContainer: {
 		flex: 2,
 		justifyContent: 'flex-end',
 		alignItems: 'center'
 	},
-	buttonSignIn: {
+	buttonRegister: {
 		alignSelf: 'stretch',
-		backgroundColor: 'pink',
+		backgroundColor: 'dodgerblue',
 		alignItems: 'center',
 		justifyContent: 'center',
 		padding: 16,
 		borderRadius: 10,
 	},
+	registerLabel:{ 
+		fontFamily:'SFProText-Semibold',
+		color:'white'
+	}
 })

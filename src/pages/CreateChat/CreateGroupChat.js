@@ -8,6 +8,7 @@ import {
 	TextInput,
 	StyleSheet,
 	Image,
+	Button
 } from 'react-native'
 
 import { Avatar,ContactList, Tick } from 'components';
@@ -49,6 +50,12 @@ export default CreateGroupChat = (props) => {
 		})
 	}
 
+	const getButtonStatus = () =>{
+		if (!groupTitle || groupTitle === "" || groupTitle.trim() == "" || selected.size <= 0) return true;
+		console.log('size ', selected.entries().next().value);
+
+		return false;
+	}
 	const onSelect = useCallback(
 		id => {
 			const newSelected = new Map(selected);
@@ -69,7 +76,6 @@ export default CreateGroupChat = (props) => {
 					<Tick selected={selected.get(item.id)}/>
 				</View>
 			</View>
-
 		</TouchableNativeFeedback>
 	)
 
@@ -99,11 +105,7 @@ export default CreateGroupChat = (props) => {
 					keyExtractor={(item, index) => item.id}
 				/>
 			</View>
-			<TouchableNativeFeedback onPress={createNewGroup}>
-				<View style={styles.btnCreateGroup}>
-					<Text style={styles.btnLabel}> Create Group</Text>
-				</View>
-			</TouchableNativeFeedback>
+			<Button title="Create Group" disabled={getButtonStatus()}/>
 		</View>
 	)
 }

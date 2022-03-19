@@ -6,7 +6,7 @@ import {
 	Text,
 	StyleSheet,
 	TouchableNativeFeedback,
-	ScrollView
+	KeyboardAvoidingView
 } from 'react-native';
 
 import { useAuthContext } from 'container';
@@ -39,7 +39,7 @@ export default SignUp = props => {
 	}
 
 	return (
-		<View style={styles.container}>
+		<View style={styles.container}  >
 			<View style={styles.formContainer}>
 				<TextInput
 					style={styles.emailTextInput}

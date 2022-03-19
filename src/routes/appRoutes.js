@@ -43,7 +43,10 @@ function AuthStack() {
 
 function HomeTab() {
 	return (
-		<Tab.Navigator initialRouteName="Home" tabBar={props => <MyTab {...props} />}>
+		<Tab.Navigator 
+			initialRouteName="Home" 
+			tabBar={props => <MyTab {...props} />} 
+			tabBarOptions={{keyboardHidesTabBar:true}}>
 			<Tab.Screen 
 				name="Home"
 				component={Home}

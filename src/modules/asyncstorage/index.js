@@ -16,10 +16,10 @@ const storeData = async(storageKey, data) =>{
     } catch (e){
         console.log( e );
     }
+    
 }
 
 const multiStore = async( data ) =>{
-    
     try{
         await AsyncStorage.multiSet( data );
     }catch(e){

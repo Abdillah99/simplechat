@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef, useCallback, useReducer } from 'rea
 import {
 	View,
 	Text,
-	ActivityIndicator
+	ActivityIndicator,
+	KeyboardAvoidingView
 } from 'react-native'
 
 import {
@@ -146,7 +147,6 @@ export default Chat = props => {
 
 
 	useEffect(()=>{
-		console.log('userdata on chat ', userData);
 		return () =>{
 			unSubscribe('messages/'+chatId);
 		}
@@ -213,7 +213,7 @@ export default Chat = props => {
 
 	var getUser = { _id: userData.id, name: userData.name, avatar: userData.profileImage };
 	return (
-	<View style={{flex:1,flexDirection: 'column', backgroundColor: 'white',  }}>
+	<View style={{flex:1, backgroundColor: 'white',  }}>
 		<GiftedChat
 			onSend={msg => onSend(msg)}
 			messages={state.messages}

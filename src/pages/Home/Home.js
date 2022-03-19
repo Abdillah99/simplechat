@@ -1,6 +1,6 @@
 import React, { useCallback,useEffect,useRef } from 'react';
 import {
-    SafeAreaView,
+    View,
     AppState,
 } from 'react-native';
 
@@ -15,7 +15,7 @@ export default Home = (props) => {
     useEffect(()=>{
         setOnline(true);
         AppState.addEventListener("change", _handleAppStateChange);
-  
+        console.log('chat useEffect run');
         return () => {
           AppState.removeEventListener("change", _handleAppStateChange);
         };
@@ -41,12 +41,12 @@ export default Home = (props) => {
 
     return (
 
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <MainHeader 
                 onRightButtonPress={navigateCreateChat} 
                 onLeftButtonPress={navigateProfile}/>
             <Conversation />
-        </SafeAreaView>
+        </View>
 
     )
 

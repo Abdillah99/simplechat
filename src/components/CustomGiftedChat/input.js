@@ -13,7 +13,6 @@ export const renderInputToolbar = (props) => (
         paddingVertical:8    
     }}    
     primaryStyle={{ alignItems: 'center', elevation:0 }}
-    
   />
 );
 

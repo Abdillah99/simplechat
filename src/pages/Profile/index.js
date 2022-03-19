@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react'
-import { View, Text, StyleSheet, ScrollView, Button } from 'react-native'
+import { View, Text, StyleSheet, KeyboardAvoidingView } from 'react-native'
 import { Avatar, FloatingLabel, LoadingModal } from 'components'
 import ImagePicker from 'react-native-image-crop-picker';
 
@@ -49,6 +49,7 @@ export default Profile = () => {
 
 	
 	return (
+
 		<View style={styles.container}>
 			<View style={styles.avatarContainer}>
 				<Avatar

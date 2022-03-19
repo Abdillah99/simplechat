@@ -6,7 +6,8 @@ import {
 	Text,
 	StyleSheet,
 	TouchableNativeFeedback,
-	ScrollView,
+	KeyboardAvoidingView,
+	ScrollView
 } from 'react-native';
 
 import { signInService } from 'services';
@@ -36,6 +37,7 @@ export default SignIn = props => {
 	}
 
 	return (
+
 		<View style={styles.container} >
 			<View style={styles.headerContainer}>
 				

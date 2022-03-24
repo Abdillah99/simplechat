@@ -3,7 +3,6 @@ import { unSubscribe, subscribeChat } from 'services';
 
 const ChatActionContext = createContext();
 const ChatStateContext = createContext();
-
 const initialState = {
 	isLoading: true,
 	chats: [],
@@ -18,7 +17,9 @@ const key = {
 	UPDATE_MESSAGE: 'UPDATE_MSG',
 	ADD_NEW_CHAT: 'ADD_NEW_CHAT',
 }
-
+/* place chat_list & opened chat subscription here
+*
+*/
 function chatReducer(state, action) {
 	switch (action.type) {
 
@@ -43,7 +44,6 @@ function chatReducer(state, action) {
 
 		default:
 			throw new Error('dispatch action not found : ' + action.type);
-
 	}
 
 };
@@ -152,6 +152,5 @@ function useChatState() {
 	}
 	return context
 }
-
 
 export { ChatContainer, useChatAction, useChatState }

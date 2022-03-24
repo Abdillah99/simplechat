@@ -2,7 +2,7 @@ import React from 'react'
 import { View, Text, ActivityIndicator } from 'react-native'
 import { multiStore, storeData, readData } from 'modules';
 import { useAuthState } from 'container';
-import { initialFetchData,getUnreceivedMessage } from 'services';
+import { initialFetchData,getUnreceivedMessage, setOnline } from 'services';
 import { StackActions } from '@react-navigation/native';
 
 export default Loading = (props) => {
@@ -21,6 +21,7 @@ export default Loading = (props) => {
                 props.navigation.dispatch(
                     StackActions.replace('HomeTab')
                 );
+                setOnline(true);
             });
             
         }else{
@@ -45,6 +46,7 @@ export default Loading = (props) => {
                 props.navigation.dispatch(
                     StackActions.replace('HomeTab')
                 );
+                setOnline(true)
             })
         }    
 

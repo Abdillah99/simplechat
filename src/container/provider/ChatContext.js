@@ -1,19 +1,19 @@
-import React, { createContext, useReducer, useMemo, useContext, useEffect, useRef, useCallback } from 'react';
-import { subscribeChat} from 'services';
+    import React, { createContext, useReducer, useMemo, useContext, useEffect, useRef, useCallback } from 'react';
+import { subscribeChat, unSubscribe } from 'services';
+import { readData } from 'modules';
 
 const ChatActionContext = createContext();
 const ChatStateContext  = createContext();
 
 const initialState = {
     isLoading: true,
+    initialized:false,
     chats:[],
     messages:[],
-    initialized:false,
-}; 
+}
 
-const key ={
-    INIT_FETCH          : 'INITIAL_FETCH',
-    OFFLINE_STORAGE     : 'OFFLINE_STORAGE',
+const actionType ={
+    INITIALIZE_CHATS    : 'INITIALIZE_CHATS',
     UPDATE_CHAT_LIST    : 'UPDATE_CHAT_LIST',
     UPDATE_MESSAGE      : 'UPDATE_MSG',
     ADD_NEW_CHAT        : 'ADD_NEW_CHAT',
@@ -22,20 +22,18 @@ const key ={
 function chatReducer( state, action ) {
 	switch (action.type) {
 
-        case key.INIT_FETCH :
+        case actionType.INITIALIZE_CHATS :
             return{
                 ...state,
                 isLoading:false,
-                chats: action.data.chat,
+                chats: action.data.chats,
                 initialized:true,
             };
         
-        case key.UPDATE_CHAT_LIST :
-            return{
-                ...state,
-                chats: action.data,
-            }
-        case key.UPDATE_MESSAGE :
+        case actionType.UPDATE_CHAT_LIST :
+            return handleChatUpdate(state,action.data);
+
+        case actionType.UPDATE_MESSAGE :
             return{
                 ...state,
                 messages: action.data,
@@ -43,7 +41,6 @@ function chatReducer( state, action ) {
 	
 		default:
 			throw new Error('dispatch action not found : ' + action.type);
-
 		}
 
 };
@@ -68,51 +65,13 @@ function ChatProvider(props) {
 
 	const chatAction = useMemo( 
         () => ({
-            initChatContext: data =>{
-                
-                dispatch({ type: key.INIT_FETCH , data: data });
+            initializChats: x =>{
+                readData('chats')
+                .then(res =>{
+                    dispatch({ type: actionType.INITIALIZE_CHATS , data: res });
+                })
             },
-            
-            updateChatContext: data =>{
 
-                var sameIndx = state.chats.findIndex( obj => obj._id == data._id );
-                
-                //same obj id but different value
-                if( sameIndx != -1 && 
-                    JSON.stringify(state.chats[sameIndx]) !== 
-                    JSON.stringify( data ) ){
-                    
-                    // console.log('same obj diff val ');
-                    state.chats[sameIndx] = data;
-                    dispatch({ type: key.UPDATE_CHAT_LIST, data:state.chats });
-                    
-                ///diff obj 
-                }else if( sameIndx === -1 ){
-                    // console.log('diff obj ADD NEW CHAT ', data._id);
-                    state.chats.push( data );
-                    dispatch({ type: key.UPDATE_CHAT_LIST, data:state.chats });
-                }
-                
-            },
-            
-            updateMessageContext: data => {
-                var sameIndx = state.messages.findIndex( obj => obj._id == data._id );
-                //same obj but diff value
-                if( sameIndx != -1 && 
-                    JSON.stringify(state.messages[sameIndx]) !== 
-                    JSON.stringify( data )){
-                     //updte prevstate data
-                    state.messages[sameIndx] = data;
-                    
-                    dispatch({ type: key.UPDATE_MESSAGE, data:state.messages });
-                    
-                }else if( sameIndx === -1 ){
-                    state.messages.push( data );
-
-                    dispatch({ type: key.UPDATE_MESSAGE, data:state.messages });
-                }
-                
-            }
 		}),
     )
 
@@ -141,7 +100,6 @@ function useChatAction(){
 }
 
 function useChatState() {
-
 	const context = useContext( ChatStateContext );
 
 	if( context === undefined ){
@@ -149,8 +107,6 @@ function useChatState() {
 	}
 
 	return context
-
 }
-
 
 export { ChatProvider, useChatAction, useChatState }

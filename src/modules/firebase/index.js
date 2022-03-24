@@ -20,9 +20,11 @@ const rootRef = database().ref();
  */
 const setOnline = ( status ) =>{
     var updates ={}
+    console.log('wtf setonline run')
     if( getMyUid() != null ){
         updates['users/'+getMyUid()+'/online/'] = status; 
         rootRef.update(updates);
+        console.log('wtf setonline run success')
     }
 }
 /**

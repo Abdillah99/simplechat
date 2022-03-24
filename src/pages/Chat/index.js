@@ -1,29 +1,20 @@
 import React, { useState, useEffect, useRef, useCallback, useReducer } from 'react'
-import {
-	View,
-	Text,
-	ActivityIndicator,
-	KeyboardAvoidingView
-} from 'react-native'
-
-import {
-	readData,
-	storeData,
-} from 'modules';
-
-import { useAuthState } from 'container'
+import { View, Text, ActivityIndicator } from 'react-native'
 import { useFocusEffect } from '@react-navigation/native';
 
 import {
-	markReadMessage,
-	createPrivateChat,
-	sendMessage,
-	subscribeMessageUpdate,
-	unSubscribe,
-} from 'services';
+	renderDay, 
+	renderBubble, 
+	renderSystemMessage,
+	renderComposer,
+	renderInputToolbar,
+	renderSend 
+} from 'components';
 import { GiftedChat } from 'react-native-gifted-chat';
 
-import { renderDay, renderBubble, renderSystemMessage,renderComposer,renderInputToolbar,renderSend } from 'components';
+import { useAuthState } from 'container'
+import { readData, storeData }from 'modules';
+import { markReadMessage, createPrivateChat, sendMessage, subscribeMessageUpdate, unSubscribe } from 'services';
 import _ from 'lodash';
 
 const actionType ={
@@ -31,6 +22,13 @@ const actionType ={
 	INIT_FAILED:'INIT_FAILED',
 	UPDATE_MESSAGE : 'UPDATE_MESSAGE',
 }
+
+const initialState ={
+	messages:[],
+	isLoading:true,
+	initialized: false,
+}
+
 const handleMsgAppend = ( chatId, prevstate, nextState,) =>{
 	// previous message object 
 	var prevMsg = prevstate.messages;
@@ -72,19 +70,20 @@ const handleMsgAppend = ( chatId, prevstate, nextState,) =>{
 		}
 	}
 }
+
 const chatReducer = (state, action) =>{
 	switch(action.type){
 		case actionType.INIT_SUCCESS:
 			return{
 				isLoading:false,
 				messages:action.data,
-				loadedCache:true,
+				initialized:true,
 			}
 		case actionType.INIT_FAILED:
 			return{
 				...state,
 				isLoading:false,
-				loadedCache:false,
+				initialized:false,
 			}
 		
 		case actionType.UPDATE_MESSAGE: 
@@ -96,65 +95,14 @@ const chatReducer = (state, action) =>{
 }
 
 export default Chat = props => {
-	const initialState ={
-		messages:[],
-		isLoading:true,
-		loadedCache: false,
-	}
-	const { chatId, chatTitle, user2Data, } = props.route.params;
+	const { chatId, chatTitle, user2Data } = props.route.params;
 	const { userData } = useAuthState();
 	const [state, dispatch] = useReducer(chatReducer,initialState);
 
 	const myRef = useRef({ alreadySubscribe: false })
 
-	const loadCache = (id) => {
-		if(id){
-			readData(id)
-			.then(offlineCache => {
-				dispatch({type:actionType.INIT_SUCCESS, data:offlineCache})
-			});
-
-		}else{
-			const sysMsg = {
-				_id: 0,
-				text: "you're not chatting with this user yet ",
-				system: true,
-			}
-			dispatch({type:actionType.INIT_SUCCESS, data:[sysMsg]})
-		}
-	}
-
-	useFocusEffect(
-		useCallback(() => {
-			props.navigation.setOptions({ title: chatTitle });
-		}, [])
-	)
-
-
-	useEffect(()=>{
-		if( !state.loadedCache ) loadCache( chatId );
-
-		if( state.loadedCache && chatId && !myRef.current.alreadySubscribe ){
-			subscribeMessageUpdate(chatId, newMsg => {
-				// console.log('subscriber got data ', newMsg);
-				dispatch({type:actionType.UPDATE_MESSAGE, data:{msg:newMsg, chatId:chatId}})
-			})
-			myRef.current.alreadySubscribe = true;
-			markRead();
-		}
-
-	},[ chatId, state.loadedCache] )
-
-
-	useEffect(()=>{
-		return () =>{
-			unSubscribe('messages/'+chatId);
-		}
-		
-	},[])
-
 	const markRead = () => {
-
+		console.log('mark readed running')
 		if (state.messages !== undefined && state.messages.length >= 1 ) {
 			var res = state.messages.filter(item => {
 				if(item !== null ) return !item.readedBy[userData.id];
@@ -171,7 +119,57 @@ export default Chat = props => {
 		}
 	}
 
-	const onSend = (msg) => {
+	const _loadLocalData = () => {
+		if(chatId){
+			readData(chatId)
+			.then(offlineCache => {
+				dispatch({type:actionType.INIT_SUCCESS, data:offlineCache})
+			});
+
+		}else{
+			const sysMsg = {
+				_id: 0,
+				text: "you're not chatting with this user yet ",
+				system: true,
+			}
+			dispatch({type:actionType.INIT_SUCCESS, data:[sysMsg]})
+		}
+	}
+
+	const _pageInitialization = () =>{
+		if( !state.initialized ) _loadLocalData();
+		if( state.initialized && chatId && !myRef.current.alreadySubscribe ){
+			console.log('init success now subscribing');
+			subscribeMessageUpdate(chatId, newMsg => {
+				console.log('subscriber mesage got data ', newMsg);
+				dispatch({type:actionType.UPDATE_MESSAGE, data:{msg:newMsg, chatId:chatId}})
+			})
+			myRef.current.alreadySubscribe = true;
+			markRead();
+		}
+		console.log(state)
+		console.log('subscrib status', myRef.current.alreadySubscribe)
+		
+	}
+
+	useFocusEffect(
+		useCallback(() => {
+			props.navigation.setOptions({ title: chatTitle });
+		}, [])
+	)
+	//initialize & subscribing if already have chat 
+	useEffect(()=>{
+		console.log('initializon effect running')
+		_pageInitialization();
+	},[chatId, state.initialized])
+	//unsubscribing 
+	useEffect(()=>{
+		return () =>{
+			unSubscribe('messages/'+chatId);
+		}
+	},[])
+
+	const _onSend = (msg) => {
 		var { text, user, createdAt, _id: localId } = msg[0];
 		var newMsg = {
 			text: text,
@@ -212,10 +210,11 @@ export default Chat = props => {
 	)
 
 	var getUser = { _id: userData.id, name: userData.name, avatar: userData.profileImage };
+
 	return (
 	<View style={{flex:1, backgroundColor: 'white',  }}>
 		<GiftedChat
-			onSend={msg => onSend(msg)}
+			onSend={msg => _onSend(msg)}
 			messages={state.messages}
 			renderBubble={renderBubble}
 			renderLoading={_renderLoading}

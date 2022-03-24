@@ -1,120 +1,20 @@
-import React, { useReducer, useEffect, useCallback,useRef } from 'react';
+import React, { useCallback } from 'react';
 import {
     FlatList,
     View,
     Text,
-    Dimensions,
     ActivityIndicator,
     Image
 } from 'react-native';
-
-import styles from './style';
-
 import {useAuthState} from 'container'
+
 import ChatCard from '../Card/Chat';
 import SearchBar from '../SearchBar';
-import { subscribeChat, unSubscribe } from 'services';
-import { useNavigation } from '@react-navigation/native';
 
-import _ from 'lodash';
-import { readData } from 'modules';
-
-const { width } = Dimensions.get('screen');
-
-const initialState ={
-    isLoading:true,
-    loadedCache:false,
-    chats:[],
-}
-const actionType = {
-    init: 'INITIALIZE',
-    updateChat: 'UPDATE_CHAT',
-}
-const handleChatUpdate = ( prevState, nextState ) =>{
-    var prevChats = prevState.chats ? prevState.chats : [];
-
-    if( prevChats !== undefined &&prevChats.length >= 1 ){
-        var chatIndex = prevChats.findIndex(obj => obj._id == nextState._id );
-        
-        if( chatIndex != -1 && !_.isEqual(prevChats[chatIndex],nextState)){
-            prevChats[chatIndex] = nextState;
-            prevChats.sort((a, b) => b.recent_message.createdAt - a.recent_message.createdAt);
-            return{...prevState}
-            // diff value
-        }else if( chatIndex == -1 ){
-            console.log('prevcht before unsfhit ', prevChats)
-            prevChats.unshift(nextState);
-            return{...prevState}
-        }else if( chatIndex != -1 && _.isEqual(prevChats[chatIndex],nextState)){
-            return{...prevState}
-        }
-    }else{
-        return{
-            ...prevState,
-            chats:[nextState],
-        }
-    }
-}
-const chatReducer = (state,action ) =>{
-    switch(action.type){
-        case actionType.init:
-            return{
-                ...state,
-                isLoading:false,
-                chats:action.data,
-                loadedCache:true
-            }
-        case actionType.updateChat:
-            return handleChatUpdate( state, action.data );
-            
-        default:
-            throw new Error('Reducer action invalid '+ action);
-    }
-}
 
 export default Conversation = (props) => {
-    const [ state, dispatch ] = useReducer(chatReducer,initialState);
     const { userData } = useAuthState();
-    const navigation = useNavigation();
-
-	const myRef = useRef({ alreadySubscribe: false })
-
-    const loadCache = () =>{
-        readData('chats')
-        .then(res=>{
-            dispatch({type:actionType.init, data:res});
-        })
-    }
-
-    useEffect(()=>{
-        if( !state.loadedCache )loadCache();
-        if( state.loadedCache && !myRef.current.alreadySubscribe ){
-            subscribeChat( res =>{
-                console.log('subscriber CHAT got ', res);
-                dispatch({type:actionType.updateChat, data:res})
-            })
-            myRef.current.alreadySubscribe = true;
-        }
-    },[state.loadedCache])
-
-
-    const onCardPress = (item) => {
-        requestAnimationFrame( () =>{
-            var res  =  _.omit(item.members, userData.id);
-            var u2id = Object.keys(res)[0];
-            const params ={
-                chatId: item._id, 
-                chatTitle: item.title, 
-                members:item.members, 
-                type:item.type,
-                user2Data:{
-                    id:u2id,
-                }
-            }
-            navigation.navigate('Chat', params);
-            
-     });
-    }
+    const { onItemPress , state } = props;
 
     const renderItem = ({ item }) => {
         var userDat = userData != undefined ? userData : {}; 
@@ -124,7 +24,7 @@ export default Conversation = (props) => {
             <ChatCard
                 item={item}
                 readed={alreadyRead}
-                onPress={onCardPress}
+                onPress={onItemPress}
                 />
         )
     }

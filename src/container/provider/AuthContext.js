@@ -1,4 +1,6 @@
 import React, { createContext, useReducer, useMemo, useContext ,useEffect, useRef} from 'react';
+import { AppState } from 'react-native';
+import {setOnline} from 'services';
 import auth from '@react-native-firebase/auth';
 
 const AuthContext = createContext();
@@ -11,8 +13,11 @@ const initialState = {
 	isFirstTime:false,
 };
 
+const actionType ={
+
+};
+
 function authReducer(state, action) {
-	console.log('reducer run ', action.type);
 	switch (action.type) {
 		case 'RESTORE_TOKEN':
 			return {
@@ -51,15 +56,19 @@ function authReducer(state, action) {
 	}
 };
 
-
-
 function AuthProvider(props) {
+	const appState = useRef(AppState.currentState);
+	const currUser = auth().currentUser;
+
 	const [state, dispatch] = useReducer(authReducer, initialState);
+
 	const authValue = useMemo(() => ({
 		signIn:  data => {
 			dispatch({type:'SIGN_IN', userData: data.userData });
 		},
-		signOut: () => dispatch({type: 'SIGN_OUT'}),
+		signOut: () =>{
+			dispatch({type: 'SIGN_OUT'});
+		},
 		signUp: data => {
 			dispatch({type: 'SIGN_IN',  userData: data.userData});
 		},
@@ -67,28 +76,20 @@ function AuthProvider(props) {
 		restoreToken: data => {
 			dispatch({ type: 'RESTORE_TOKEN', userData: data.userData });
 		}
-
 	}),
 	)
-	const authStateChanged =( user )=>{
-		if(user){
-			const data={
-				userData:{
-					id:user.uid,
-					name:user.displayName,
-					email:user.email,
-					profileImage:user.photoURL
-				}
-			}
-			authValue.restoreToken( data )
-		}else{
-			authValue.signOut();
+	
+	const _handleAppStateChange = (nextAppState) => {
+		if (appState.current.match(/inactive|background/) && nextAppState === "active") {
+			if(!state.isSignout) setOnline(true);
+		}else if(appState.current.match(/active/) && nextAppState =='background'){
+			if(!state.isSignout) setOnline(false);
 		}
+		appState.current = nextAppState;
 	}
 
 	useEffect(() => {
 		//componentdid mount
-		const currUser = auth().currentUser;
 		 if( currUser !== null ) {
 			const data={
 				userData:{
@@ -102,13 +103,22 @@ function AuthProvider(props) {
 		}else if( currUser === null && state.isSignout ){
 			authValue.signOut();
 		}
-		
-		//component unmount
-	
+
 
 	},[]);
 
+	/* set user online / not, based on appstate 
+	* only work if user already login / state.isSigout: false  
+	*/
+	useEffect(()=>{
+		const subscription = AppState.addEventListener("change", _handleAppStateChange);
+	
+		return () => {
+			subscription.remove();
+		};
 
+	},[state.isSignout])
+  
 	return (
 		<AuthStateContext.Provider value={state}>
 			<AuthContext.Provider value={authValue}>
@@ -117,7 +127,6 @@ function AuthProvider(props) {
 		</AuthStateContext.Provider>
 	)
 }
-
 
 function useAuthContext() {
 	const context = useContext(AuthContext);
@@ -134,6 +143,5 @@ function useAuthState() {
 	}
 	return context
 }
-
 
 export { AuthProvider, useAuthContext, useAuthState }

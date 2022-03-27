@@ -1,4 +1,4 @@
-import { myFirebase,updateData, multiUpdate } from 'modules';
+import { myFirebase  } from 'modules';
 
 const getCurrentUser = () =>( myFirebase.getCurrentUser() );
 
@@ -71,8 +71,8 @@ export const getUnreceivedMessage = async() =>{
     var resUnreceivedMsg    = await myFirebase.getUnreceivedMessage(chatKey)
     // group of unreceived message with chat id
     // the result is returnet messages with chat id
-    if(resUnreceivedMsg){
-        var localDataUpdate = [];
+    var localDataUpdate = [];
+    if(resUnreceivedMsg.length){
         var arrServerUpdate = [];
         resUnreceivedMsg.forEach( msgwithId =>{
             const messages  = Object.values(msgwithId);
@@ -100,12 +100,10 @@ export const getUnreceivedMessage = async() =>{
             var built = [chatMsgId, arrMessages];
             localDataUpdate.push(built);
         })
-        //store new data to local
-        multiUpdate(localDataUpdate);
         //update server data
         myFirebase.multiMarkReceivedMessage(arrServerUpdate);
     }
-    return true;
+    return localDataUpdate;
 }
 
 export const getChatList = async() =>{

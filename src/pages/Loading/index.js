@@ -1,6 +1,6 @@
 import React,{ useState, useEffect } from 'react'
 import { View, Text, ActivityIndicator } from 'react-native'
-import { multiStore, storeData, readData } from 'modules';
+import { multiStore, storeData, multiUpdate } from 'modules';
 import { useAuthState } from 'container';
 import { initialFetchData, getUnreceivedMessage, setOnline, storeChats, getChatList } from 'services';
 import { StackActions } from '@react-navigation/native';
@@ -38,32 +38,29 @@ export default Loading = (props) => {
     //TODO Fetchunreceived bergunauntuk mengambil saja, sedangkan mengupdate received local dipindah disini oke
     //TODO BUAT MULTI UPDATE ASYNCSTORAGE
     //If user already logged in , only fetch unreceived messages
-    const fetchUnreceived = async () =>{
-        try {
-            const unreceivedMSG   = await getUnreceivedMessage();
-            if(unreceivedMSG){
-                const updatedChatList = await getChatList();
-                const storeStats      = await storeChats(updatedChatList);
-                return storeStats;                
-            }
+    const syncDataWithServer = async () =>{
+        //retreive unreceived message
+        const msg = await getUnreceivedMessage();
+        if(msg.length){
+            //update local messages data
+            setLoadingMsg('Caching message data');
+            await multiUpdate(msg);
+            //sync chat list with server then save to local data
+            const updateChats = await getChatList();
+            await storeChats(updateChats);
         }
-         catch (err) {
-            throw new Error('failed fetching unreceived message',err)
-        }
+        return true;    
     }
 
     useEffect(() => {
         if( !isFirstTime ){
-            fetchUnreceived().then(res=>{
-                setLoadingMsg('Caching message data');
+            syncDataWithServer()
+            .then(res=>{
                 if(res){
-                    props.navigation.dispatch(
-                        StackActions.replace('HomeTab')
-                    )
+                    props.navigation.dispatch( StackActions.replace('HomeTab') )
                     setOnline(true)
                 }
             })
-            
         }else{
             initialFetchData()
             .then(data => {

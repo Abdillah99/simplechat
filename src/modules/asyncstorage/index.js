@@ -48,7 +48,7 @@ const multiUpdate = async ( updatedData = [] ) =>{
             const data = item[1];
             var localData = await readData(key);
             localData.push(...data);
-            var finalData = [key,JSON.stringify(localData)]; 
+            var finalData = [JSON.stringify(key),JSON.stringify(localData)]; 
             return finalData;
         });
         var result = await Promise.all(appendData);

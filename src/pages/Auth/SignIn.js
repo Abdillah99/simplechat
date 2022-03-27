@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo } from 'react';
+import React, { useState } from 'react';
 
 import {
 	View,
@@ -6,8 +6,7 @@ import {
 	Text,
 	StyleSheet,
 	TouchableNativeFeedback,
-	KeyboardAvoidingView,
-	ScrollView
+
 } from 'react-native';
 
 import { signInService } from 'services';

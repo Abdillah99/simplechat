@@ -20,11 +20,9 @@ const rootRef = database().ref();
  */
 const setOnline = ( status ) =>{
     var updates ={}
-    console.log('wtf setonline run')
     if( getMyUid() != null ){
         updates['users/'+getMyUid()+'/online/'] = status; 
         rootRef.update(updates);
-        console.log('wtf setonline run success')
     }
 }
 /**
@@ -42,13 +40,11 @@ const listenUserProfile = (uid,callback) =>{
  * get all user data
  */
 const getContact = () => {
-
     return rootRef.child('users')
         .once('value')
 }
 
 const getUserProfileImage = ( uid )=>{
-
     return rootRef.child('users/'+uid+'/avatar')
                   .once('value')
 }
@@ -112,7 +108,6 @@ const signOut = () => {
  * @returns {Promise} 
  */
 const updateProfile = (data) => {
-
     return getCurrentUser().updateProfile({
         ...data
     });
@@ -131,7 +126,6 @@ const updateBio = (data) => {
  * @returns {Array} [ChatList, MessageList]
  */
 const initialFetch = async () => {
-
     const chatRes = await rootRef.child('chat_list')
                                  .orderByChild('members/'+ getMyUid())
                                  .equalTo(true)
@@ -155,7 +149,10 @@ const initialFetch = async () => {
     return [chatValue, messageValue];
 
 }
-
+/**
+ * get all my chat list
+ * @returns {Object} chat_list
+ */
 const getAllChat = () =>{
     return rootRef.child('chat_list')
                   .orderByChild('members/'+getMyUid())
@@ -165,40 +162,41 @@ const getAllChat = () =>{
                      return snap.val();
                   })
 } 
-/**
- *  get all unreceived message when user off 
- *  call this function inside loading component if user already logged in
- * @param {Array} chatId 
- * @param {Function} callback 
- */
-const getUnreceivedMessage = async ( chatId = [] ) =>{
-   
-    var result = await Promise.all(
-        chatId.map( chat =>{
-            return rootRef.child('messages/'+chat)
-                          .orderByChild('receivedBy/'+getMyUid())
-                          .equalTo(null)
-                          .once('value')    
-                          .then(snap =>{
-                            return  snap
-                          })
-        }))
-    var arrBuild = [];
-    result.forEach(item=>{
-        if(item.val() != null){
-            var build = {};
-            build[item.key] = item.val();
-            arrBuild.push(build);
-        }
-    })
-
-    return arrBuild;
-}
 
 const getAllChatId = () =>{
     return rootRef.child('users/' + getMyUid() + '/chat_list')
                   .once('value')
+                  .then(snap =>{
+                      return snap.val();
+                  })
 }
+/**
+ *  get all unreceived message by checking every chat 
+ *  call this function inside loading component if user already logged in
+ * @param {Array} chatId  
+ */
+const getUnreceivedMessage = async ( chatId = [] ) =>{
+    const msgRef = async (id) =>{
+        return rootRef.child('messages/'+id)
+                          .orderByChild('receivedBy/'+getMyUid())
+                          .equalTo(null)
+                          .once('value')
+                          .then(res=>{
+                              if(res.val() != null ){
+                                  var tmp = {}
+                                  tmp[res.key] = res.val();
+                                  return tmp;
+                              }
+                          })   
+    }
+    var actions     = chatId.map(msgRef);
+    var result      = await Promise.all(actions);
+    //remove null ref value ( cuz not every chats have new unreceived msg, firebase returnet null every we chechked the ref)
+    var notEmptyRes = result.filter( val =>val != null );
+
+    return notEmptyRes;
+}
+
 /**
  * Listen new created chat 
  */
@@ -211,7 +209,21 @@ const listenChatList = (callback) => {
                 if (res) callback(res);
             })
 }
-
+/**
+ * 
+ * @param {Array} data [['ChatID1', ['MessageID1','MessageID2'] ],[['ChatID2', 'MessageID2']] 
+ */
+const multiMarkReceivedMessage = ( data = [] ) =>{
+    var updates = {};   
+    data.forEach( item => {
+        const chatId = item[0];
+        const messages = item[1];
+        messages.forEach( msgId =>{
+            updates['messages/'+chatId+'/'+msgId+'/receivedBy/'+getMyUid()] = true; 
+        })
+    });
+    rootRef.update(updates);
+}
 const markReceiveMessage  = (chatId,msgList=[]) =>{
     var updates = {};
     msgList.forEach(msgId=>{
@@ -467,5 +479,6 @@ export const myFirebase = {
     markReceiveMessage,
     getUnreceivedMessage,
     getAllChatId,
-    getAllChat
+    getAllChat,
+    multiMarkReceivedMessage
 }

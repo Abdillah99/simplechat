@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 
 import {
 	View,
@@ -6,7 +6,6 @@ import {
 	Text,
 	StyleSheet,
 	TouchableNativeFeedback,
-	KeyboardAvoidingView
 } from 'react-native';
 
 import { useAuthContext } from 'container';

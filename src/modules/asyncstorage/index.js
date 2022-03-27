@@ -19,9 +19,41 @@ const storeData = async(storageKey, data) =>{
     
 }
 
+const multiRead = async( keys = [] ) =>{
+    try {
+        const jsonVal = await AsyncStorage.multiGet(keys); 
+        return jsonVal != null ? JSON.parse( jsonVal ): [];
+    } catch (error) {
+        
+    }
+}
+
 const multiStore = async( data ) =>{
     try{
         await AsyncStorage.multiSet( data );
+    }catch(e){
+        throw e;
+    }
+}
+
+/**
+ * 
+ * @param {Array} updatedData'[ [key1,val1], [key2,val2] ]'
+ *  
+ */
+const multiUpdate = async ( updatedData = [] ) =>{
+    try{
+        var appendData = updatedData.map( async item =>{
+            const key = item[0];
+            const data = item[1];
+            var localData = await readData(key);
+            localData.push(...data);
+            var finalData = [key,JSON.stringify(localData)]; 
+            return finalData;
+        });
+        var result = await Promise.all(appendData);
+        await multiStore(result);
+        return true;
     }catch(e){
         throw e;
     }
@@ -54,4 +86,12 @@ const clearAllData = async() =>{
     } 
 } 
 
-export { storeData, readData, mergeData , clearAllData,multiStore,updateData } 
+export { 
+    storeData, 
+    readData, 
+    mergeData , 
+    clearAllData,
+    multiStore,
+    updateData,
+    multiUpdate
+ } 

@@ -101,7 +101,6 @@ export default Home = (props) => {
             unSubscribe('chat_list');
         };
     },[])
- 
 
     //UI FUNCTION
     const _onItemPress = (item) => {

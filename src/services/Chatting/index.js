@@ -1,4 +1,4 @@
-import { myFirebase,updateData } from 'modules';
+import { myFirebase,updateData, multiUpdate } from 'modules';
 
 const getCurrentUser = () =>( myFirebase.getCurrentUser() );
 
@@ -48,48 +48,73 @@ export const initialFetchData = async () =>{
     }
    
 }
+//converting chat list raw data to client spec
+// convert private chat tittle to name and chat sender to you if you the sender
+//e.g user1 = 'alex' user2 = 'brian'; on user1 chat title will show 'Brian'
+const convertChatListDetail = ( msgData ) =>{
+    var myId = getCurrentUser().uid;
+    var parsedChatList = [];
+    msgData.forEach(item=>{
+        if( item.type == 'private' ) item.title = item.title[myId];
+        if( item.recent_message.user != undefined && item.recent_message.user._id == myId ) item.recent_message.user.name = 'You';
+        
+        parsedChatList.push(item)
+    })
+    return parsedChatList;
+}
 
 export const getUnreceivedMessage = async() =>{
-    var myId = getCurrentUser().uid;
-
-    var chat = await myFirebase.getAllChat();
-    var chatKey = chat ? Object.keys(chat):[];
-    var chats = chat? Object.values(chat): [];
-    
-    var parsedChat = [];
-    chats.forEach(chatList=>{
-        // convert chat tittle to user name 
-        //e.g user1 = 'alex' user2 = 'brian'; on user1 chat title will show 'Brian'
-        if( chatList.type == 'private' ) chatList.title = chatList.title[myId];
-        if( chatList.recent_message.user != undefined && 
-            chatList.recent_message.user._id == myId ) chatList.recent_message.user.name = 'You';
-            parsedChat.push(chatList)
-    })
-    var unreceive = await myFirebase.getUnreceivedMessage(chatKey)
+    //get all my chatid
+    var resChatList         = await myFirebase.getAllChatId();
+    var chatKey             = resChatList? Object.keys(resChatList) :[];
+    //get unreceived msg by checkiing each chat use chatid  
+    var resUnreceivedMsg    = await myFirebase.getUnreceivedMessage(chatKey)
     // group of unreceived message with chat id
-    unreceive.forEach( message =>{
-        var chatId = Object.keys(message)[0]; //chat id 
-        var msgObj = Object.values(message); ///array of message obj with key
+    // the result is returnet messages with chat id
+    if(resUnreceivedMsg){
+        var localDataUpdate = [];
+        var arrServerUpdate = [];
+        resUnreceivedMsg.forEach( msgwithId =>{
+            const messages  = Object.values(msgwithId);
+            const chatMsgId = Object.keys(msgwithId)[0];
 
-        msgObj.forEach(msg=>{
-            //message in same chat id
-            var msgArr = Object.values( msg );
-            var msgKey = Object.keys( msg );
-            msgArr.map( async (item)=>{
-                item.pending=false;
-                item.sent=true;
-                item.received=true;
-                await updateData(chatId, item)
+            var listMsgId   = [];
+            var arrMessages = [];
+            messages.forEach( msgData =>{
+                let msgDataVal  = Object.values(msgData);
+                let msgId       = Object.keys(msgData);
+
+                listMsgId = msgId;
+
+                msgDataVal.forEach( msgVal =>{
+                    msgVal.pending=false;
+                    msgVal.sent=true;
+                    msgVal.received=true;
+                    arrMessages.push(msgVal);
+                })
             })
-            myFirebase.markReceiveMessage( chatId, msgKey);
+            //mark server data is only use chat id and list of msg id
+            var serverData = [chatMsgId, listMsgId];
+            arrServerUpdate.push(serverData);
+            //local data update is chatid with messages data
+            var built = [chatMsgId, arrMessages];
+            localDataUpdate.push(built);
         })
-    })
-
-    var final={
-        chats:parsedChat,
+        //store new data to local
+        multiUpdate(localDataUpdate);
+        //update server data
+        myFirebase.multiMarkReceivedMessage(arrServerUpdate);
     }
-    return final;
+    return true;
+}
 
+export const getChatList = async() =>{
+    var resChatList = await myFirebase.getAllChat();
+    var chatList     = resChatList? Object.values(resChatList) :[];
+    var convertedChatList = convertChatListDetail(chatList);
+    var convertedSorted = convertedChatList.sort((a, b) => b.recent_message.createdAt - a.recent_message.createdAt)
+
+    return convertedSorted;
 }
 
 export const subsCribeUserStatus = ( uid,callback ) =>{

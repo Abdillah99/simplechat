@@ -101,7 +101,7 @@ export const getUnreceivedMessage = async() =>{
             localDataUpdate.push(built);
         })
         //update server data
-        // myFirebase.multiMarkReceivedMessage(arrServerUpdate);
+        myFirebase.multiMarkReceivedMessage(arrServerUpdate);
     }
     return localDataUpdate;
 }

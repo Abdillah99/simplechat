@@ -44,7 +44,7 @@ const multiStore = async( data ) =>{
 const multiUpdate = async ( updatedData = [] ) =>{
     try{
         var appendData = updatedData.map( async item =>{
-            const key = item[0];
+            const key  = item[0];
             const data = item[1];
             var localData = await readData(key);
             localData.push(...data);

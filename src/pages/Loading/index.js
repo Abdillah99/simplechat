@@ -1,8 +1,15 @@
 import React,{ useState, useEffect } from 'react'
 import { View, Text, ActivityIndicator } from 'react-native'
-import { multiStore, multiUpdate } from 'modules';
 import { useAuthState } from 'container';
-import { initialFetchData, getUnreceivedMessage, setOnline, storeChats, getChatList } from 'services';
+import { 
+    initialFetchData, 
+    getUnreceivedMessage, 
+    setOnline, 
+    storeChats, 
+    storeMessages, 
+    multiUpdateMessages, 
+    getChatList 
+} from 'services';
 import { StackActions } from '@react-navigation/native';
 
 export default Loading = (props) => {
@@ -13,7 +20,7 @@ export default Loading = (props) => {
         const res = await initialFetchData()
         if(res.chats){
             await storeChats(res.chats);
-            if(res.messages) await multiStore(res.messages);
+            if(res.messages) await storeMessages(res.messages);
         }
         return true;
     }
@@ -24,7 +31,7 @@ export default Loading = (props) => {
         if(msg.length){
             //update local messages data
             setLoadingMsg('Caching message data');
-            await multiUpdate(msg);
+            await multiUpdateMessages(msg);
         }
         //sync chat list with server then save to local data
         const updateChats = await getChatList();
@@ -40,15 +47,16 @@ export default Loading = (props) => {
     useEffect(() => {
         if( isFirstTime ){
             fetchAllChatsData().then( res =>{
-                if(res) actionAfterLoading()
+                if(res)actionAfterLoading()
             })
         }
 
-        syncDataWithServer().then(res=>{
-            if(res) actionAfterLoading()
-        })
-
-    }, [])
+        if(!isFirstTime){
+            syncDataWithServer().then(res=>{
+                if(res)actionAfterLoading()
+            })
+        }
+    },[])
 
     return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

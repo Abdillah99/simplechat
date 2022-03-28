@@ -84,9 +84,9 @@ const ChatHeader = ({scene, previous, navigation}) => {
 
         }
         return () => {
-            if( chatType == 'private' 
-                && params.user2Data !== undefined ) unSubscribe('users/'+params.user2Data.id);
+            unSubscribe('users');
         }
+
     }, [])
     return (
         <View style={styles.container}>

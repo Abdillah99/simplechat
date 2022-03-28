@@ -35,10 +35,9 @@ const handleMsgAppend = ( chatId, prevstate, nextState,) =>{
 	//find object index return -1 if objet not found
 	let objIndex = prevMsg.findIndex(obj => obj._id == nextState._id);
 	//object included in prevstate but with different value
-	console.log('append msg  prevmsg is ', prevMsg, ' index is ', objIndex, ' nexstate ', nextState);
+	// console.log('append msg  prevmsg is ', prevMsg, ' index is ', objIndex, ' nexstate ', nextState);
 	
 	if(objIndex != -1 && !_.isEqual(prevMsg[objIndex], nextState)){
-		console.log('same obj diff val ')
 		prevMsg[objIndex] = nextState
 		storeData(chatId,prevMsg);
 		return{...prevstate}
@@ -46,7 +45,7 @@ const handleMsgAppend = ( chatId, prevstate, nextState,) =>{
 	} else if (objIndex == -1) {
 		//Object not included in prevstate, and prevstate is not empty
 		if (prevMsg != undefined && prevMsg.length >= 1) {
-			console.log('not included not empty ')
+			// console.log('not included not empty ')
 			storeData( chatId,GiftedChat.append(prevMsg, nextState));				
 			return {
 				...prevstate,
@@ -54,7 +53,7 @@ const handleMsgAppend = ( chatId, prevstate, nextState,) =>{
 			}
 			//Object not included in prevstate, and prevstate is empty
 		} else if (prevMsg.length <= 0 || prevMsg == undefined) {
-			console.log('not included empty ')
+			// console.log('not included empty ')
 			storeData(chatId,[nextState]);
 			return {
 				...prevstate,
@@ -63,7 +62,7 @@ const handleMsgAppend = ( chatId, prevstate, nextState,) =>{
 		}
 		///object is included in prevstate with same value 
 	} else if (objIndex != -1 && _.isEqual(prevMsg[objIndex], nextState)) {
-		console.log('object is included in prevstate with same value  ')
+		// console.log('object is included in prevstate with same value  ')
 
 		return {
 			...prevstate,
@@ -102,7 +101,6 @@ export default Chat = props => {
 	const myRef = useRef({ alreadySubscribe: false })
 
 	const markRead = () => {
-		console.log('mark readed running')
 		if (state.messages !== undefined && state.messages.length >= 1 ) {
 			var res = state.messages.filter(item => {
 				if(item !== null ) return !item.readedBy[userData.id];
@@ -139,16 +137,13 @@ export default Chat = props => {
 	const _pageInitialization = () =>{
 		if( !state.initialized ) _loadLocalData();
 		if( state.initialized && chatId && !myRef.current.alreadySubscribe ){
-			console.log('init success now subscribing');
 			subscribeMessageUpdate(chatId, newMsg => {
-				console.log('subscriber mesage got data ', newMsg);
 				dispatch({type:actionType.UPDATE_MESSAGE, data:{msg:newMsg, chatId:chatId}})
 			})
 			myRef.current.alreadySubscribe = true;
 			markRead();
 		}
-		console.log(state)
-		console.log('subscrib status', myRef.current.alreadySubscribe)
+
 		
 	}
 
@@ -159,7 +154,6 @@ export default Chat = props => {
 	)
 	//initialize & subscribing if already have chat 
 	useEffect(()=>{
-		console.log('initializon effect running')
 		_pageInitialization();
 	},[chatId, state.initialized])
 	//unsubscribing 

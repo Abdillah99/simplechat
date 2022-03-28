@@ -46,7 +46,7 @@ export default Conversation = (props) => {
 
     return (
         <FlatList
-            data={state.chats}
+            data={ state.chats.sort( (a, b) => b.recent_message.createdAt - a.recent_message.createdAt ) }
             keyExtractor={(item) => item._id}
             renderItem={renderItem}
             ListHeaderComponent={renderHeader}

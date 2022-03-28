@@ -108,10 +108,13 @@ export const getUnreceivedMessage = async() =>{
 
 export const getChatList = async() =>{
     var chatList            = await myFirebase.getAllChat();
-    var convertedChatList   = builtChatListClient(chatList);
-    var convertedSorted     = convertedChatList.sort((a, b) => b.recent_message.createdAt - a.recent_message.createdAt)
-
-    return convertedSorted;
+    if( chatList.length ){
+        var convertedChatList   = builtChatListClient(chatList);
+        var convertedSorted     = convertedChatList.sort((a, b) => b.recent_message.createdAt - a.recent_message.createdAt)
+        return convertedSorted;
+    }else{
+        return [];
+    }
 }
 
 export const subsCribeUserStatus = ( uid,callback ) =>{
@@ -126,7 +129,7 @@ export const subsCribeUserStatus = ( uid,callback ) =>{
 export const subscribeChat = ( callback ) =>{
     //only run once
     myFirebase.listenChatList( value =>{
-
+        console.log('subscriber chat RUNNING', value);
         if( value.type == 'private' ) value.title = value.title[getCurrentUser().uid];
         if( value.recent_message != undefined &&
             value.recent_message.user != undefined &&

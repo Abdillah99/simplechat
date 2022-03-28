@@ -35,7 +35,8 @@ export default Loading = (props) => {
         }
         //sync chat list with server then save to local data
         const updateChats = await getChatList();
-        await storeChats(updateChats);
+        if( updateChats.length ) await storeChats(updateChats);
+        
         return true;    
     }
 

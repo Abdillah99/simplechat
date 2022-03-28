@@ -1,9 +1,10 @@
-import React, { useCallback, useReducer, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useReducer, useEffect, useRef } from 'react';
 import { View } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 import styles from './Style';
 import { MainHeader, Conversation } from 'components'
+import { appendChats } from 'utils';
 
 import { useAuthState } from 'container'
 import { readData } from 'modules';
@@ -25,28 +26,13 @@ const actionType = {
 //*STATE HANDLING FUNCTION
 const handleChatUpdate = ( prevState, nextState ) =>{
     var prevChats = prevState.chats ? prevState.chats : [];
+    var updates   = appendChats(prevChats, nextState);
 
-    if( prevChats !== undefined &&prevChats.length >= 1 ){
-        var chatIndex = prevChats.findIndex(obj => obj._id == nextState._id );
-        
-        if( chatIndex != -1 && !_.isEqual(prevChats[chatIndex],nextState)){
-            prevChats[chatIndex] = nextState;
-            prevChats.sort((a, b) => b.recent_message.createdAt - a.recent_message.createdAt);
-            return{...prevState}
-            // diff value
-        }else if( chatIndex == -1 ){
-            console.log('prevcht before unsfhit ', prevChats)
-            prevChats.unshift(nextState);
-            return{...prevState}
-        }else if( chatIndex != -1 && _.isEqual(prevChats[chatIndex],nextState)){
-            return{...prevState}
-        }
-    }else{
-        return{
-            ...prevState,
-            chats:[nextState],
-        }
+    return{
+        ...prevState,
+        chats:updates,
     }
+
 }
 
 const chatReducer = (state,action ) =>{

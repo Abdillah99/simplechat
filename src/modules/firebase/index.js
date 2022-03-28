@@ -145,7 +145,9 @@ const getAllChat = () =>{
                   .equalTo(true)
                   .once('value')
                   .then(snap=>{
-                      if(snap.val()) return Object.values(snap.val());
+                      if( snap.val() != null ){
+                          return Object.values(snap.val());
+                      }
                       return []
                   })
 } 
@@ -154,7 +156,7 @@ const getAllChatId = () =>{
     return rootRef.child('users/' + getMyUid() + '/chat_list')
                   .once('value')
                   .then(snap =>{
-                      if(snap.val()){
+                      if(snap.val() != null ){
                         return Object.keys(snap.val())
                       }
                       return [];
@@ -194,9 +196,10 @@ const listenChatList = (callback) => {
     return rootRef.child('chat_list')
             .orderByChild('members/'+ getMyUid())
             .equalTo(true)            
-            .on('child_changed', snapshot => {
-                var res = snapshot.val() ?snapshot.val(): null;
-                if (res) callback(res);
+            .on('child_changed', snap => {
+                if(snap.val() != null ){
+                    callback(snap.val());
+                }
             })
 }
 /**
@@ -271,7 +274,11 @@ const getMultiMessages = async (arrId= []) =>{
                     .equalTo(id)
                     .once('value')
                     .then(snap=>{
-                        return snap.val();
+                        if( snap.val() != null )
+                        {
+                            return snap.val();
+                        }
+                        return [];
                     });
 
     }

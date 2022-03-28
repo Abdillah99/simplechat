@@ -126,28 +126,14 @@ const updateBio = (data) => {
  * @returns {Array} [ChatList, MessageList]
  */
 const initialFetch = async () => {
-    const chatRes = await rootRef.child('chat_list')
-                                 .orderByChild('members/'+ getMyUid())
-                                 .equalTo(true)
-                                 .once('value')
-    var chatResult = chatRes.val();
+    const chatRef = await getAllChat();
 
-    const chatValue  = chatResult ? Object.values(chatResult) : [];
-    const chatKey    = chatResult ? Object.keys(chatResult) : [];
+    const chatValue  = chatRef ? Object.values(chatRef) : [];
+    const chatKey    = chatRef ? Object.keys(chatRef) : [];
     
-    const messageValue = await Promise.all(
-        chatKey.map( id => {
-            return rootRef.child('messages')
-                        .orderByKey()
-                        .equalTo(id)
-                        .once('value')
-                        .then(snapshot=>{
-                            return snapshot.val();
-                        });
-        }));
+    const messageValue = await getMultiMessages(chatKey);
 
     return [chatValue, messageValue];
-
 }
 /**
  * get all my chat list
@@ -159,7 +145,8 @@ const getAllChat = () =>{
                   .equalTo(true)
                   .once('value')
                   .then(snap=>{
-                     return snap.val();
+                      if(snap.val()) return Object.values(snap.val());
+                      return []
                   })
 } 
 
@@ -167,7 +154,10 @@ const getAllChatId = () =>{
     return rootRef.child('users/' + getMyUid() + '/chat_list')
                   .once('value')
                   .then(snap =>{
-                      return snap.val();
+                      if(snap.val()){
+                        return Object.keys(snap.val())
+                      }
+                      return [];
                   })
 }
 /**
@@ -269,8 +259,27 @@ const sendMessage = (chatId, msgData, callback) => {
 
     callback(newMsg.key);
 }
+/**
+ * 
+ * @param {Array} arrId Array of chat ID  
+ * @returns {Object} 
+ */
+const getMultiMessages = async (arrId= []) =>{
+    const msgRef = async (id) =>{
+        return rootRef.child('messages')
+                    .orderByKey()
+                    .equalTo(id)
+                    .once('value')
+                    .then(snap=>{
+                        return snap.val();
+                    });
 
+    }
 
+    var actions = arrId.map(msgRef);
+    var result  = await Promise.all(actions);
+    return result;
+}
 /**
  * Mark readed all not readed user message 
  * @param {String} chatId 
@@ -480,5 +489,6 @@ export const myFirebase = {
     getUnreceivedMessage,
     getAllChatId,
     getAllChat,
+    getMultiMessages,
     multiMarkReceivedMessage
 }
